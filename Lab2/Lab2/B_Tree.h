@@ -18,10 +18,11 @@ class B_Tree
 
 	public:
 		B_Tree(string file, int t1);
+
 		string search(int key);
 		void push(int key, string value);
-		void console_write();
 
+		void console_write();
 		void TLR(Node* p);
 
 	private:
@@ -31,12 +32,11 @@ class B_Tree
 
 		void write_BD();
 		
-
 		string search_in_node(Node*& curent_node,const int key);
 
 		void search_node(Node*& curent_node, int& key,string& value, bool& need_break_node, Node*& add_ptr);
 		int search_pos_insert(Node* curent_node, int key);
 		void insert_element(Node*&, int pos, int key, string value, Node*& add_ptr);
-		
+		void cell_node(Node*& curent_node, Node*& n1, Node*& n2);
 };
 
