@@ -46,6 +46,8 @@ string B_Tree::search_in_node(Node*& cur_node, const int key)
 	return value;
 }
 
+
+
 void B_Tree::push(int key, string value)
 {
 	bool element_rise = true;
@@ -144,6 +146,74 @@ void B_Tree::cell_node(Node*& curent_node, Node*& n1, Node*& n2)
 		n2->ptr_sons.push_back(curent_node->ptr_sons[i]);
 	}
 }
+
+
+
+void B_Tree::pop(int key)
+{
+	search_delete_key(root, key);
+	
+}
+void B_Tree::search_delete_key(Node*& cur_node, int& key)
+{
+	int pos = 0;
+	bool is_search = search_node_with_key(cur_node, key, pos);
+	if (!is_search)
+	{
+		search_delete_key(cur_node->ptr_sons[pos], key);
+	}
+	else
+	{	
+		if (cur_node->ptr_sons[0]->data.size()  == 0)		// листовий елемент
+		{
+			if (cur_node->data.size() > min_keys)
+			{
+				delete_element(cur_node, key, pos);
+			}
+			else
+			{
+
+			}
+		}
+	}
+}
+
+
+bool B_Tree::search_node_with_key(Node* cur_node, int key, int& pos)
+{	
+	bool is_search = false;
+	for (int i = 0; i < cur_node->data.size(); i++)
+	{
+		if (key == cur_node->data[i].first)
+		{
+			pos = i;
+			is_search = true;
+			break;
+		}
+		else
+		{
+			if (key < cur_node->data[i].first)
+			{
+				pos = i;
+				break;
+			}
+		}
+		if (i == cur_node->data.size() - 1 && key > cur_node->data[i].first)
+		{
+			pos = i + 1;
+			break;
+		}
+	}
+	return is_search;
+}
+void B_Tree::delete_element(Node*& node_key, int key, int pos)
+{
+	auto it_d = node_key->data.begin();
+	auto it_s = node_key->ptr_sons.begin();
+	node_key->data.erase(it_d + pos);
+	node_key->ptr_sons.erase(it_s + pos);
+}
+
 
 void B_Tree::write_BD()
 {
