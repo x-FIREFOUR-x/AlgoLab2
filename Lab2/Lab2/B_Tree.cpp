@@ -151,29 +151,30 @@ void B_Tree::cell_node(Node*& curent_node, Node*& n1, Node*& n2)
 
 void B_Tree::pop(int key)
 {
-	search_delete_key(root, key);
-	
-}
-void B_Tree::search_delete_key(Node*& cur_node, int& key)
-{
-	int pos = 0;
-	bool is_search = search_node_with_key(cur_node, key, pos);
-	if (!is_search)
+	pair<int, string> swap_element;
+	search_delete_key(root, key, "non", swap_element);
+	if (root->data.size() == 0)
 	{
-		search_delete_key(cur_node->ptr_sons[pos], key);
+		root = root->ptr_sons[0];
 	}
-	else
-	{	
-		if (cur_node->ptr_sons[0]->data.size()  == 0)		// листовий елемент
+}
+void B_Tree::search_delete_key(Node*& cur_node, int& key, string side, pair<int, string> swap_element)
+{
+	if (cur_node != nullptr)
+	{
+		bool is_key_in_tree = false;
+		int pos;
+		int situation = 0;
+		if (is_key_in_tree || side != "non")
 		{
-			if (cur_node->data.size() > min_keys)
-			{
-				delete_element(cur_node, key, pos);
-			}
-			else
-			{
-
-			}
+			if (is_key_in_tree)
+				swap_element = cur_node->data[pos - 1];
+			if (side == "right")
+				pos = cur_node->data.size();
+			if (side == "left")
+				pos = 0;
+			if(cur_node->ptr_sons[pos] == nullptr)
+			
 		}
 	}
 }
