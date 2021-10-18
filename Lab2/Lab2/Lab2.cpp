@@ -14,14 +14,14 @@ int main()
     while (!is_exit)
     {
         int a;
-        cout << endl << "input (1-search, 2-add, 3-exit)";
+        cout << endl << "input (1-search, 2-add, 3-pop, 4-exit)";
         cin >> a;
             switch (a)
             {
                 case 1: 
                 {
                     int key;
-                    cout << endl << "input search key ";
+                    cout << endl << "input search key: ";
                     cin >> key;
                     string val = tree.search(key);
 
@@ -40,23 +40,33 @@ int main()
                 case 2: 
                 {
                     int key;
-                    cout << endl << "input add key ";
+                    cout << endl << "input add key: ";
                     cin >> key;
                     string value;
-                    cout << endl << "input add value ";
+                    cout << endl << "input add value: ";
                     cin >> value;
                     tree.push(key, value);
                     break;
                 }
-                    
+
 
                 case 3: 
+                {
+                    int key;
+                    cout << endl << "input delete key: ";
+                    cin >> key;
+                    tree.pop(key);
+                    //tree.console_write();
+                    break;
+                }
+
+                case 4: 
                     is_exit = true; break;
             }
     }
     
-
-    /*vector<int> k;
+    /*
+    vector<int> k;
     vector<int> p;
     for (int i = 0; i < 6; i++)
     {
@@ -82,7 +92,24 @@ int main()
         for (int i = 0; i < k.size(); i++)
         {
             cout << p[i] <<" ";
-        }*/
+        }
+    */
+
+    /*
+    vector<int> k;
+    vector<int> p;
+    for (int i = 0; i < 6; i++)
+    {
+        k.push_back(i);
+        p.push_back(i*2 + 1);
+
+    }
+    k.insert(k.begin(),p.begin(),p.end());
+    for (int i = 0; i < k.size(); i++)
+    {
+        cout << k[i] << " ";
+    }
+    */
 
     return 0;
 }

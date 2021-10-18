@@ -2,8 +2,8 @@
 B_Tree::B_Tree(string file, int t1)
 {
 	t = t1;
-	min_keys = t - 1;
-	max_keys = 2 * t - 1;
+	min_keys = t-1;
+	max_keys = t*2 -1;
 	filename = file;
 	read_BD();
 }
@@ -152,31 +152,130 @@ void B_Tree::cell_node(Node*& curent_node, Node*& n1, Node*& n2)
 void B_Tree::pop(int key)
 {
 	pair<int, string> swap_element;
-	search_delete_key(root, key, "non", swap_element);
-	if (root->data.size() == 0)
+	pop(key, root, nullptr,  swap_element, -1);
+	/*if (root->data.size() == 0)
 	{
 		root = root->ptr_sons[0];
-	}
+	}*/
+	write_BD();
 }
-void B_Tree::search_delete_key(Node*& cur_node, int& key, string side, pair<int, string> swap_element)
+void B_Tree::pop(int& key, Node* cur_node, Node* father_ptr,  pair<int, string> swap_element, int pos_deep)
 {
-	if (cur_node != nullptr)
+	int pos = 0;
+	bool there_node = search_node_with_key(cur_node, key, pos);			//позиція елемента, якщо він є в цьому вузлі ,або вказівника на поглиблення далі
+	if (there_node)
 	{
-		bool is_key_in_tree = false;
-		int pos;
-		int situation = 0;
-		if (is_key_in_tree || side != "non")
+		if (cur_node->ptr_sons[0]->data.size() == 0)			// чи елемент знаходиться в листі
 		{
-			if (is_key_in_tree)
-				swap_element = cur_node->data[pos - 1];
-			if (side == "right")
-				pos = cur_node->data.size();
-			if (side == "left")
-				pos = 0;
-			if(cur_node->ptr_sons[pos] == nullptr)
-			
+			if (cur_node->data.size() > min_keys || father_ptr == nullptr)		// видалення коли розмір не мінімальний
+			{
+				delete_element(cur_node, key, pos);
+			}
+			else if (pos_deep > 0 && father_ptr->ptr_sons[pos_deep-1]->data.size() > min_keys)		// видаляєм з листа коли його розмір мін а лівого сусіда не мін
+			{
+				int pos_last_elem = father_ptr->ptr_sons[pos_deep - 1]->data.size() - 1;
+				swap_element = father_ptr->ptr_sons[pos_deep - 1]->data[pos_last_elem];					// запам'ятовуєм останній елемент лівого сусіда		
+				delete_element(father_ptr->ptr_sons[pos_deep - 1], swap_element.first, pos_last_elem);	// видаляєм цей останній елемент з лівого сусіда
+
+				pair<int, string> buf_element = swap_element;
+				swap_element = father_ptr->data[pos_deep - 1];			// запамятовуєм елемент в батьківській ноді між вказівниками на вузол і його лівого сусіда
+				father_ptr->data[pos_deep - 1] = buf_element;			// замість цього елемента кладем останній елемент з лівого сусіда
+
+				for (int i = pos; i > 0; i--)							// затираєм елемент який потрібно видалити сусідами з права
+				{
+					father_ptr->ptr_sons[pos_deep]->data[i] = father_ptr->ptr_sons[pos_deep]->data[i-1];
+				}
+				father_ptr->ptr_sons[pos_deep]->data[0] = swap_element;			// і кладем в вузол на позицію першого елемента  елемент з батька
+
+			}
+			else if (pos_deep < father_ptr->ptr_sons.size() - 1 && father_ptr->ptr_sons[pos_deep+1]->data.size() > min_keys)	// видаляєм з листа коли його розмір мін а правого сусіда не мін
+			{
+				swap_element = father_ptr->ptr_sons[pos_deep + 1]->data[0];						//запам'ятовуємо перший елемент з правого сусіда
+				delete_element(father_ptr->ptr_sons[pos_deep + 1], swap_element.first, 0);		// видаляєм цей перший елемент з правого сусіда
+
+				pair<int, string> buf_element = swap_element;
+				swap_element = father_ptr->data[pos_deep];			// запамятовуєм елемент в батьківській ноді між вказівниками на вузол і його правого сусіда
+				father_ptr->data[pos_deep] = buf_element;			// замість цього елемента кладем перший елемент з правого сусіда
+
+				int pos_last_elem = father_ptr->ptr_sons[pos_deep]->data.size() - 1;
+				for (int i = pos; i < pos_last_elem; i++)					// затираєм елемент який потрібно видалити сусідами з права 
+				{
+					father_ptr->ptr_sons[pos_deep]->data[i] = father_ptr->ptr_sons[pos_deep]->data[i + 1];
+				}
+				
+				father_ptr->ptr_sons[pos_deep]->data[pos_last_elem] = swap_element;		// і кладем в вузол на позицію останнього елемента елемент з батька
+			}
+			else		// коли в листі і в правому і лівому сусіді min
+			{
+				if (pos_deep != 0)			// злиття з лівим сусідом
+				{
+					swap_element = father_ptr->data[pos_deep - 1];								// спуск елемента з батька в кінець лівого сусіда
+					father_ptr->ptr_sons[pos_deep - 1]->data.push_back(swap_element);
+
+					auto it_end_right_node = father_ptr->ptr_sons[pos_deep - 1]->data.end();	// злиття вузла в його лівого сусіда
+					auto it_begin_node = father_ptr->ptr_sons[pos_deep]->data.begin();
+					auto it_end_node = father_ptr->ptr_sons[pos_deep]->data.end();
+					father_ptr->ptr_sons[pos_deep - 1]->data.insert(it_end_right_node, it_begin_node, it_end_node);
+
+					father_ptr->ptr_sons[pos_deep]->~Node();							// видалення спущеного вузла в батьку
+					auto it_pos_date = father_ptr->data.begin() + pos_deep -1;
+					father_ptr->data.erase(it_pos_date);
+					auto it_pos_ptr = father_ptr->ptr_sons.begin() + pos_deep;
+					father_ptr->ptr_sons.erase(it_pos_ptr);
+
+					while (father_ptr->ptr_sons[pos_deep - 1]->ptr_sons.size() <= father_ptr->ptr_sons[pos_deep - 1]->data.size())
+					{
+						father_ptr->ptr_sons[pos_deep - 1]->ptr_sons.push_back(new Node);
+					}
+
+					search_node_with_key(father_ptr->ptr_sons[pos_deep - 1], key, pos);		// видалення в новому вже вузлі потрібного елемента(старий лівий сусід)
+					delete_element(father_ptr->ptr_sons[pos_deep - 1], key, pos);
+
+					
+				}
+				else			// злиття з правим сусідом
+				{
+					swap_element = father_ptr->data[pos_deep];										// спуск елемента з батьківського в початок правого сусіда вузла
+ 					vector<pair<int, string>> buf;
+					buf.push_back(swap_element);
+					auto it_begin_right_node = father_ptr->ptr_sons[pos_deep + 1]->data.begin();
+					auto it_begin_elem = buf.begin();
+					auto it_end_elem = buf.end();
+					father_ptr->ptr_sons[pos_deep + 1]->data.insert(it_begin_right_node, it_begin_elem, it_end_elem);
+
+					it_begin_right_node = father_ptr->ptr_sons[pos_deep + 1]->data.begin();			// злиття вузла в його правого сусіда
+					auto it_begin_node = father_ptr->ptr_sons[pos_deep]->data.begin();
+					auto it_end_node = father_ptr->ptr_sons[pos_deep]->data.end();
+					father_ptr->ptr_sons[pos_deep + 1]->data.insert(it_begin_right_node, it_begin_node, it_end_node);
+
+					father_ptr->ptr_sons[pos_deep]->~Node();							// видалення спущеного елемента в батьківському вузлі
+					auto it_pos_date = father_ptr->data.begin() + pos_deep ;
+					father_ptr->data.erase(it_pos_date);
+					auto it_pos_ptr = father_ptr->ptr_sons.begin() + pos_deep;
+					father_ptr->ptr_sons.erase(it_pos_ptr);
+
+					while (father_ptr->ptr_sons[pos_deep]->ptr_sons.size() <= father_ptr->ptr_sons[pos_deep]->data.size())
+					{
+						father_ptr->ptr_sons[pos_deep]->ptr_sons.push_back(new Node);
+					}
+
+					search_node_with_key(father_ptr->ptr_sons[pos_deep], key, pos);			// видалення в новому вже вузлі потрібного елемента (старий правий сусід)
+					delete_element(father_ptr->ptr_sons[pos_deep], key, pos);
+
+				}
+				
+			}
+		}
+		else   // елемент знаходиться не в листовому вузлі
+		{
+
 		}
 	}
+	else
+	{
+		pop(key, cur_node->ptr_sons[pos], cur_node, swap_element, pos);
+	}
+	
 }
 
 
@@ -209,10 +308,18 @@ bool B_Tree::search_node_with_key(Node* cur_node, int key, int& pos)
 }
 void B_Tree::delete_element(Node*& node_key, int key, int pos)
 {
+	int ptr_pos;
+	if (pos == node_key->data.size() - 1)
+		ptr_pos = pos + 1;
+	else
+		ptr_pos = pos;
+
 	auto it_d = node_key->data.begin();
-	auto it_s = node_key->ptr_sons.begin();
 	node_key->data.erase(it_d + pos);
-	node_key->ptr_sons.erase(it_s + pos);
+
+	
+	auto it_s = node_key->ptr_sons.begin();
+	node_key->ptr_sons.erase(it_s + ptr_pos);
 }
 
 
