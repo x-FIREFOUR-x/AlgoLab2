@@ -460,7 +460,35 @@ void B_Tree::pop(int& key, Node* cur_node, Node* father_ptr,  pair<int, string> 
 			{
 				search_node_with_key(cur_node, key, pos);	// позиція елемента який потрібно видалити
 
-				 if (pos_deep > 0 && father_ptr->ptr_sons[pos_deep - 1]->data.size() > min_keys)		// лівий сусід не мін, батько мін
+				if (cur_node->data.size() > min_keys)		// в цьому вузлі не мін елементів
+				{
+					int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
+					if (side == 1)
+						ptrdel_r_l = 1;
+					else if (side == -1)
+						ptrdel_r_l = 0;
+
+					for (int i = pos; i > 0; i--)					// зсуваєм вправо елементи ноди затираючи елемент який нада видалити
+					{
+						cur_node->data[i] = cur_node->data[i - 1];
+					}
+
+					cur_node->ptr_sons[pos + ptrdel_r_l]->~Node();
+					for (int i = pos + ptrdel_r_l; i > 0; i--)				// зсуваєм вправо вказівники ноди затираючи вказівник який нада видалити
+					{
+						cur_node->ptr_sons[i] = cur_node->ptr_sons[i - 1];
+					}
+
+																		// видаляєм перший вказівник і значення (зменшуєм розмір)
+					auto it_begin_data = cur_node->data.begin();
+					cur_node->data.erase(it_begin_data);			
+					auto it_begin_ptr = cur_node->ptr_sons.begin();
+					cur_node->ptr_sons.erase(it_begin_ptr);
+
+					lift_del = false;	// більше не потрібно нічого видаляти
+					side = 0;
+				}
+				else if (pos_deep > 0 && father_ptr->ptr_sons[pos_deep - 1]->data.size() > min_keys)		// лівий сусід не мін, батько мін
 				{
 					swap_element = father_ptr->data[pos_deep - 1];  // елемент який ми спускаєм з батька на заміну видаляємого з вузла
 

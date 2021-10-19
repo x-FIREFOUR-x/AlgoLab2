@@ -1,18 +1,16 @@
 50:level1;80:djdj;
 10:level2;16:kjk;
-60:level2;70:d;77:level3;
+70:d;77:level3;
 90:level2;95:node3;
 4:level3;5:j;6:d;
 14:level3;15:kjk;
 20:node1;27:t;
-51:level3;52:u;
-65:qwe;68:ddd;
+51:level3;52:u;60:level2;68:ddd;
 73:h;75:node2;
 78:n;79:ddd;
 81:level3;82:fff;89:fff;
 92:level3;93:ffff;
 100:level3;110:fff;121:ffff;
-
 
 
 
