@@ -44,5 +44,7 @@ class B_Tree
 		void pop(int& key, Node* cur_node, Node* father_ptr, pair<int, string> swap_element, int pos_deep);
 		bool search_node_with_key(Node* root, int key, int& pos);
 		void delete_element(Node*& node_key,int key, int pos);
+		Node* search_swap_root_left(Node* cur_node,int pos, pair<int, string>& element);
+		Node* search_swap_root_right(Node* cur_node, int pos, pair<int, string>& element);
 };
 

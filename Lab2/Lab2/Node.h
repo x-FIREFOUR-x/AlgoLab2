@@ -8,6 +8,5 @@ struct Node
 {
 	vector<Node*> ptr_sons;
 	vector<pair<int,string>> data;
-
 };
 
