@@ -217,6 +217,7 @@ void B_Tree::pop(int& key, Node* cur_node, Node* father_ptr,  pair<int, string> 
 					auto it_end_node = father_ptr->ptr_sons[pos_deep]->data.end();
 					father_ptr->ptr_sons[pos_deep - 1]->data.insert(it_end_right_node, it_begin_node, it_end_node);
 
+		// !!!!змінити на рекурсивний виклик
 					father_ptr->ptr_sons[pos_deep]->~Node();							// видалення спущеного вузла в батьку
 					auto it_pos_date = father_ptr->data.begin() + pos_deep -1;
 					father_ptr->data.erase(it_pos_date);
@@ -248,6 +249,7 @@ void B_Tree::pop(int& key, Node* cur_node, Node* father_ptr,  pair<int, string> 
 					auto it_end_node = father_ptr->ptr_sons[pos_deep]->data.end();
 					father_ptr->ptr_sons[pos_deep + 1]->data.insert(it_begin_right_node, it_begin_node, it_end_node);
 
+		// !!!!змінити на рекурсивний виклик
 					father_ptr->ptr_sons[pos_deep]->~Node();							// видалення спущеного елемента в батьківському вузлі
 					auto it_pos_date = father_ptr->data.begin() + pos_deep ;
 					father_ptr->data.erase(it_pos_date);
@@ -268,7 +270,49 @@ void B_Tree::pop(int& key, Node* cur_node, Node* father_ptr,  pair<int, string> 
 		}
 		else   // елемент знаходиться не в листовому вузлі
 		{
+				if (cur_node->ptr_sons[pos]->data.size() > min_keys )
+				{
+					int size_left_son = cur_node->ptr_sons[pos]->data.size();
+					swap_element = cur_node->ptr_sons[pos]->data[size_left_son - 1];
+					cur_node->data[pos] = swap_element;
+					pop(swap_element.first, cur_node->ptr_sons[pos], cur_node, swap_element, pos);
+				}
+				else if (cur_node->ptr_sons[pos+1]->data.size() > min_keys )
+				{
+					swap_element = cur_node->ptr_sons[pos+1]->data[0];
+					cur_node->data[pos] = swap_element;
+					pop(swap_element.first, cur_node->ptr_sons[pos+1], cur_node, swap_element, pos+1);
+				}
+				else
+				{
+					if (cur_node->data.size() > min_keys)
+					{
+						swap_element = cur_node->data[pos];							
+						cur_node->ptr_sons[pos]->data.push_back(swap_element);		// спускаєм потрібний елемент в кінець лівого сина
 
+						auto it_end_left_son = cur_node->ptr_sons[pos]->data.end();				
+						auto it_begin_right_son = cur_node->ptr_sons[pos + 1]->data.begin();
+						auto it_end_right_son = cur_node->ptr_sons[pos + 1]->data.end();
+						cur_node->ptr_sons[pos]->data.insert(it_end_left_son, it_begin_right_son, it_end_right_son);   // доєднуєм до лівого сина правого сина
+
+						auto it_end_left_son_ptr = cur_node->ptr_sons[pos]->ptr_sons.end();
+						auto it_begin_right_son_ptr = cur_node->ptr_sons[pos + 1]->ptr_sons.begin();
+						auto it_end_right_son_ptr = cur_node->ptr_sons[pos + 1]->ptr_sons.end();
+						cur_node->ptr_sons[pos]->ptr_sons.insert(it_end_left_son_ptr, it_begin_right_son_ptr, it_end_right_son_ptr);	// доєднуєм до вказівників лівого сина вказівники правого сина
+
+						cur_node->ptr_sons[pos + 1]->~Node();
+						auto it_date = cur_node->data.begin() + pos;
+						auto it_ptr = cur_node->ptr_sons.begin() + pos + 1;
+						cur_node->data.erase(it_date);							// уидаляєм цей елемент в вузлі
+						cur_node->ptr_sons.erase(it_ptr);						// удаляєм вказівник на правого сина з вузла
+
+						pop(swap_element.first, cur_node->ptr_sons[pos], cur_node, swap_element, pos);		// викликаєм функцію видалення цього ключа для дівого сина
+
+					}
+					
+
+				}
+			
 		}
 	}
 	else
