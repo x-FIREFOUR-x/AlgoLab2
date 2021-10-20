@@ -55,7 +55,11 @@ int main()
                     int key;
                     cout << endl << "input delete key: ";
                     cin >> key;
-                    tree.pop(key);
+                    bool succses = tree.pop(key);
+                    if (succses)
+                        cout << endl << " succses delete key- " << key;
+                    else
+                        cout << endl << "not succses delete key(not have this key)";
                     //tree.console_write();
                     break;
                 }

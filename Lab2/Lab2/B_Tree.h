@@ -22,7 +22,7 @@ class B_Tree
 		string search(int key);
 		void push(int key, string value);
 
-		void pop(int key);
+		bool pop(int key);
 
 		void console_write();
 		void TLR(Node* p);
@@ -41,10 +41,11 @@ class B_Tree
 		void insert_element(Node*&, int pos, int key, string value, Node*& add_ptr);
 		void cell_node(Node*& curent_node, Node*& n1, Node*& n2);
 
-		void pop(int& key, Node* cur_node, Node* father_ptr, pair<int, string> swap_element, int pos_deep, bool& lift_del, int& side, bool& descent);
+		void pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr, pair<int, string> swap_element, int pos_deep, bool& lift_del, int& side, bool& descent);
 		bool search_node_with_key(Node* root, int key, int& pos);
 		void delete_element(Node*& node_key,int key, int pos);
 		Node* search_swap_root_left(Node* cur_node,int pos, pair<int, string>& element);
 		Node* search_swap_root_right(Node* cur_node, int pos, pair<int, string>& element);
+		void to_left_son_add_right_son(Node* cur_node, int pos);
 };
 
