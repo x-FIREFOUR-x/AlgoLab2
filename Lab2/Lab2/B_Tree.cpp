@@ -172,6 +172,7 @@ void B_Tree::pop(int& key, Node* cur_node, Node* father_ptr,  pair<int, string> 
 		{
 			if (cur_node->ptr_sons[0]->data.size() == 0)			// чи елемент знаходиться в листі
 			{
+
 				if (cur_node->data.size() > min_keys || father_ptr == nullptr)		// видалення коли розмір не мінімальний
 				{
 					delete_element(cur_node, key, pos);
@@ -230,15 +231,6 @@ void B_Tree::pop(int& key, Node* cur_node, Node* father_ptr,  pair<int, string> 
 						search_node_with_key(father_ptr->ptr_sons[pos_deep - 1], key, pos);		// видалення в новому вже вузлі потрібного елемента(старий лівий сусід)
 						delete_element(father_ptr->ptr_sons[pos_deep - 1], key, pos);
 
-						// !!!!змінити на рекурсивний виклик
-								/*
-								father_ptr->ptr_sons[pos_deep]->~Node();							// видалення спущеного вузла в батьку
-								auto it_pos_date = father_ptr->data.begin() + pos_deep -1;
-								father_ptr->data.erase(it_pos_date);
-								auto it_pos_ptr = father_ptr->ptr_sons.begin() + pos_deep;
-								father_ptr->ptr_sons.erase(it_pos_ptr);
-								*/
-
 						key = swap_element.first; // ключ елемента якого потрібно видалити в батьківському вузлі так як він уже в сині
 						side = 1; // видалити потрібно правий вказівник
 						lift_del = true;
@@ -265,18 +257,8 @@ void B_Tree::pop(int& key, Node* cur_node, Node* father_ptr,  pair<int, string> 
 						father_ptr->ptr_sons[pos_deep + 1]->ptr_sons.insert(it_begin_right_pos, it_begin_pos, it_end_pos);
 
 
-						search_node_with_key(father_ptr->ptr_sons[pos_deep], key, pos);			// видалення в новому вже вузлі потрібного елемента (старий правий сусід)
-						delete_element(father_ptr->ptr_sons[pos_deep], key, pos);
-
-						// !!!!змінити на рекурсивний виклик
-								/*
-								father_ptr->ptr_sons[pos_deep]->~Node();							// видалення спущеного елемента в батьківському вузлі
-								auto it_pos_date = father_ptr->data.begin() + pos_deep ;
-								father_ptr->data.erase(it_pos_date);
-								auto it_pos_ptr = father_ptr->ptr_sons.begin() + pos_deep;
-								father_ptr->ptr_sons.erase(it_pos_ptr);
-								*/
-
+						search_node_with_key(father_ptr->ptr_sons[pos_deep+1], key, pos);			// видалення в новому вже вузлі потрібного елемента (старий правий сусід)
+						delete_element(father_ptr->ptr_sons[pos_deep+1], key, pos);
 
 						key = swap_element.first; // ключ елемента якого потрібно видалити в батьківському вузлі так як він уже в сині
 						side = -1; // видалити потрібно лівий вказівник
@@ -288,7 +270,7 @@ void B_Tree::pop(int& key, Node* cur_node, Node* father_ptr,  pair<int, string> 
 			}
 			else   // елемент знаходиться не в листовому вузлі
 			{
-				if (father_ptr == nullptr && cur_node->data.size() == 1)
+				if (father_ptr == nullptr && cur_node->data.size() == 1)			// видалення елемента з кореня коли його розмір мінімальний
 				{
 					if (cur_node->ptr_sons[0]->data.size())
 					{
@@ -368,8 +350,11 @@ void B_Tree::pop(int& key, Node* cur_node, Node* father_ptr,  pair<int, string> 
 							pop(swap_element.first, cur_node->ptr_sons[pos], cur_node, swap_element, pos, lift_del, side, descent);		// викликаєм функцію видалення цього ключа для лівого сина
 
 						}
-						else    // якщо вузол має мінімальну кількість ключів (100)
+						else    // якщо вузол має мінімальну кількість ключів (100) (сини теж)
 						{
+							
+
+
 							/*
 							swap_element = cur_node->data[pos];
 							cur_node->ptr_sons[pos]->data.push_back(swap_element);		// спускаєм потрібний елемент в кінець лівого сина
@@ -594,7 +579,7 @@ void B_Tree::pop(int& key, Node* cur_node, Node* father_ptr,  pair<int, string> 
 						side = -1;						// лівий вказівник вузла батька відносно видаляємого ключа далі теж видалити
 						key = swap_element.first;		// ключ що переміщений з батька в вузол потрібно видалити в батьку
 					}
-					else			//зливаєм з правим сусідом (правого доєднуєм)
+					else		//зливаєм з правим сусідом (правого доєднуєм)
 					{
 						int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
 						if (side == 1)
