@@ -9,7 +9,7 @@ int main()
 {
   
     B_Tree tree("BD.txt",3);
-    //tree.console_write();
+    tree.console_write();
     bool is_exit = false;
     while (!is_exit)
     {

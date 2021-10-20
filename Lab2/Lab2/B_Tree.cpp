@@ -272,6 +272,7 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 						side = -1; // видалити потрібно лівий вказівник
 						lift_del = true;
 
+
 					}
 
 				}
@@ -280,30 +281,44 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 			{
 				if (father_ptr == nullptr && cur_node->data.size() == 1)			// видалення елемента з кореня коли його розмір мінімальний
 				{
-					if (cur_node->ptr_sons[0]->data.size())
+					if (cur_node->ptr_sons[0]->data.size() > 0)
 					{
-						pair<int, string> element = cur_node->data[0];
+						pair<int, string> element;
 						//Node* f_ptr = nullptr;
-						Node* ptr_leet = search_swap_root_left(cur_node, 0, element);
+						Node* ptr_leet = search_elem_left_subroot(cur_node, 0, element);		// находим самий правий вузол лівого піддерева 
 
-						if (ptr_leet->data.size() > min_keys)
+						if (ptr_leet->data.size() > min_keys)					// якщо правий лист лівого піддерева більше мін
 						{
-							cur_node->data[0] = element;
-							auto it_d = ptr_leet->data.begin() + ptr_leet->data.size() - 1;
-							auto it_s = ptr_leet->ptr_sons.begin() + ptr_leet->ptr_sons.size() - 1;
-							ptr_leet->data.erase(it_d);
-							ptr_leet->ptr_sons.erase(it_s);
+							cur_node->data[0] = element;						// заміняєм видаляємий елемент з кореня на останній елемент з листа
+							
+							ptr_leet->data.pop_back();
+							ptr_leet->ptr_sons.pop_back();
 						}
 						else
 						{
-							ptr_leet = search_swap_root_right(cur_node, 1, element);
-							if (ptr_leet->data.size() > min_keys)
+							ptr_leet = search_elem_right_subroot(cur_node, 1, element);		// находим самий лівий вузол правого піддерева
+							if (ptr_leet->data.size() > min_keys)				// якщо лівий лист правого піддерева більше мін
 							{
-								cur_node->data[0] = element;
-								auto it_d = ptr_leet->data.begin();
+								cur_node->data[0] = element;				// заміняєм видаляємий елемент з кореня на перший елемент з листа
+
+								auto it_d = ptr_leet->data.begin();			// видаляєм цей елемент з листа
 								auto it_s = ptr_leet->ptr_sons.begin();
 								ptr_leet->data.erase(it_d);
 								ptr_leet->ptr_sons.erase(it_s);
+							}
+							else				// якщо правий лист лівого піддерева мін і лівий лист правого піддерева мін
+							{
+								pair<int, string> root_elem = cur_node->data[pos];
+								int key_leet = element.first;
+								pop(key_leet, is_key, root, nullptr, swap_element, 0, lift_del, side, descent);     // виклик видалення елемента в листі який ми помістим в корінь
+
+								lift_del = false;		// збивання флажків які могли активуватися в процедурі видалення елемента з листа
+								descent = true;
+								side = 0;
+
+								Node* node_root_elem = root;
+								node_root_elem = search_root_element(node_root_elem, root_elem.first, pos);	// пошук вузла і позиція елемента що був у корені
+								node_root_elem->data[pos] = element;						// заміна елемента в вузлі який ми мали видалити на той що видалили в листі
 							}
 						}
 
@@ -488,229 +503,7 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 	{
 		if (lift_del && side != 0)		// видалення спливаючого елемента
 		{
-			int pos;
-			if (father_ptr == nullptr)
-			{
-				search_node_with_key(cur_node, key, pos);	// позиція елемента який потрібно видалити
-
-				if (cur_node->data.size() == 1)
-				{
-					Node* buf = root;
-					if (side == 1)
-					{
-						cur_node->ptr_sons[1]->~Node();
-						root = cur_node->ptr_sons[0];				// правий покажчик потрібно видалити а одже лівий покажчик тепер вказує на корінь
-					}
-					else
-					{
-						cur_node->ptr_sons[0]->~Node();
-						root = cur_node->ptr_sons[1];					// лівий покажчик потрібно видалити а одже правий покажчик тепер вказує на корінь
-					}
-					buf->~Node();
-				}
-				else
-				{
-					int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
-					if (side == 1)
-						ptrdel_r_l = 1;
-					else if (side == -1)
-						ptrdel_r_l = 0;
-
-					for (int i = pos; i > 0; i--)							// зсуваєм елементи вправо заміщаючи той який нада видалити
-					{
-						cur_node->data[i] = cur_node->data[i - 1];
-					}
-					cur_node->ptr_sons[pos + ptrdel_r_l]->~Node();
-					for (int i = pos + ptrdel_r_l; i > 0; i--)				// зсуваєм вказівники вправо заміщаючи той який нада видалити (side)
-					{
-						cur_node->ptr_sons[i] = cur_node->ptr_sons[i - 1];
-					}
-					auto it_begin_data = cur_node->data.begin();
-					auto it_begin_ptr = cur_node->ptr_sons.begin();
-
-					cur_node->data.erase(it_begin_data);			// видаляєм непотрібний перший елемент
-					cur_node->ptr_sons.erase(it_begin_ptr);			// видаляєм не потрібний перший покажчик
-				}
-			}
-			else
-			{
-				search_node_with_key(cur_node, key, pos);	// позиція елемента який потрібно видалити
-
-				if (cur_node->data.size() > min_keys)		// в цьому вузлі не мін елементів
-				{
-					int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
-					if (side == 1)
-						ptrdel_r_l = 1;
-					else if (side == -1)
-						ptrdel_r_l = 0;
-
-					for (int i = pos; i > 0; i--)					// зсуваєм вправо елементи ноди затираючи елемент який нада видалити
-					{
-						cur_node->data[i] = cur_node->data[i - 1];
-					}
-
-					cur_node->ptr_sons[pos + ptrdel_r_l]->~Node();
-					for (int i = pos + ptrdel_r_l; i > 0; i--)				// зсуваєм вправо вказівники ноди затираючи вказівник який нада видалити
-					{
-						cur_node->ptr_sons[i] = cur_node->ptr_sons[i - 1];
-					}
-
-																		// видаляєм перший вказівник і значення (зменшуєм розмір)
-					auto it_begin_data = cur_node->data.begin();
-					cur_node->data.erase(it_begin_data);			
-					auto it_begin_ptr = cur_node->ptr_sons.begin();
-					cur_node->ptr_sons.erase(it_begin_ptr);
-
-					lift_del = false;	// більше не потрібно нічого видаляти
-					side = 0;
-				}
-				else if (pos_deep > 0 && father_ptr->ptr_sons[pos_deep - 1]->data.size() > min_keys)		// лівий сусід не мін, батько мін
-				{
-					swap_element = father_ptr->data[pos_deep - 1];  // елемент який ми спускаєм з батька на заміну видаляємого з вузла
-
-					int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
-					if (side == 1)
-						ptrdel_r_l = 1;
-					else if (side == -1)
-						ptrdel_r_l = 0;
-
-					for (int i = pos; i > 0; i--)					// зсовуєм елементи вправо заміщаючи видаляємий
-					{
-						cur_node->data[i] = cur_node->data[i - 1];
-					}
-					cur_node->data[0] = swap_element;				// кладем на місце першого елемента вузла (з якого видаляєм) елемент з батька між цим вузлом і лівим сусідом
-
-					cur_node->ptr_sons[pos + ptrdel_r_l]->~Node();
-					for (int i = pos + ptrdel_r_l; i > 0; i--)			// зсовуєм вказівники вправо починаючи з правого чи лівого поінтер (side)
-					{
-						cur_node->ptr_sons[i] = cur_node->ptr_sons[i - 1];
-					}
-					int in_last_p_left = father_ptr->ptr_sons[pos_deep - 1]->ptr_sons.size() - 1;	// індекс останнього поінтера лівого сусіда
-					cur_node->ptr_sons[0] = father_ptr->ptr_sons[pos_deep - 1]->ptr_sons[in_last_p_left];	// на місце першого поінтера в вузлі кладемо останній з лівого сусіда
-
-					int in_last_d_left = father_ptr->ptr_sons[pos_deep - 1]->data.size() - 1;		// індекс останнього елемента лівого сусіда
-					father_ptr->data[pos_deep - 1] = father_ptr->ptr_sons[pos_deep - 1]->data[in_last_d_left]; // на місце елемента в батьківському вузлі між вузлом і лівим сусідом кладем останній елемент лівого сусіда
-
-					father_ptr->ptr_sons[pos_deep - 1]->data.pop_back();			// видаляєм останній елемент і поінтер лівого сусіда
-					father_ptr->ptr_sons[pos_deep - 1]->ptr_sons.pop_back();
-
-					lift_del = false;	// більше не потрібно нічого видаляти
-					side = 0;
-				}
-				else if (pos_deep < father_ptr->ptr_sons.size() - 1 && father_ptr->ptr_sons[pos_deep + 1]->data.size() > min_keys)  // правий сусід не мін, батько мін
-				{
-					swap_element = father_ptr->data[pos_deep];  // елемент який ми спускаєм з батька на заміну видаляємого елемента з вузла
-
-					int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
-					if (side == 1)
-						ptrdel_r_l = 1;
-					else if (side == -1)
-						ptrdel_r_l = 0;
-
-					for (int i = pos; i < cur_node->data.size() - 1; i++)					// зсовуєм елементи вліво заміщаючи видаляємий
-					{
-						cur_node->data[i] = cur_node->data[i + 1];
-					}
-					cur_node->data[cur_node->data.size() - 1] = swap_element;				// кладем на місце постаннього елемента вузла (з якого видаляєм) елемент з батька між цим вузлом і правим сусідом
-
-					cur_node->ptr_sons[pos + ptrdel_r_l]->~Node();
-					for (int i = pos + ptrdel_r_l; i < cur_node->ptr_sons.size() - 1; i++)			// зсовуєм вказівники вліво починаючи з правого чи лівого поінтер (side)
-					{
-						cur_node->ptr_sons[i] = cur_node->ptr_sons[i + 1];
-					}
-					cur_node->ptr_sons[cur_node->ptr_sons.size() - 1] = father_ptr->ptr_sons[pos_deep + 1]->ptr_sons[0];	// на місце першого поінтера в вузлі кладемо останній з лівого сусіда
-
-					father_ptr->data[pos_deep] = father_ptr->ptr_sons[pos_deep + 1]->data[0]; // на місце елемента в батьківському вузлі між вузлом і правим сусідом кладем перший елемент правого сусіда
-
-
-					auto it_begin_data_right = father_ptr->ptr_sons[pos_deep + 1]->data.begin();			// видаляєм перший елемент і поінтер правого сусіда
-					auto it_begin_ptr_right = father_ptr->ptr_sons[pos_deep + 1]->ptr_sons.begin();
-					father_ptr->ptr_sons[pos_deep + 1]->data.erase(it_begin_data_right);
-					father_ptr->ptr_sons[pos_deep + 1]->ptr_sons.erase(it_begin_ptr_right);
-
-					lift_del = false;	// більше не потрібно нічого видаляти
-					side = 0;
-				}
-				else        // лівий і правий сусід мін батько мін
-				{
-					if (pos_deep > 0)	//зливаєм з лівим сусідом (лівого доєднуєм)
-					{
-						int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
-						if (side == 1)
-							ptrdel_r_l = 1;
-						else if (side == -1)
-							ptrdel_r_l = 0;
-
-						swap_element = father_ptr->data[pos_deep - 1];			// берем елемент(між вузлом і лівим сусідом) з батька що спускається в вузол
-						for (int i = pos; i > 0; i--)							// зсовуєм елементи вправо заміщуючи видалений 
-						{
-							cur_node->data[i] = cur_node->data[i - 1];
-						}
-						cur_node->data[0] = swap_element;	// на перший елемент ставимо упущений елемент з батька
-
-						cur_node->ptr_sons[pos + ptrdel_r_l]->~Node();
-						for (int i = pos + ptrdel_r_l; i < 0; i--)			// зсовуєм вказівники вправо заміщуючи видалений  (side лівий чи правий)
-						{
-							cur_node->ptr_sons[i] = cur_node->ptr_sons[i - 1];
-						}
-						auto it_begin_ptr = cur_node->ptr_sons.begin();
-						cur_node->ptr_sons.erase(it_begin_ptr);					// вирізаєм не потрібний перший вказівник
-
-						auto it_begin_data_node = cur_node->data.begin();
-						auto it_begin_data_left = father_ptr->ptr_sons[pos_deep - 1]->data.begin();
-						auto it_end_data_left = father_ptr->ptr_sons[pos_deep - 1]->data.end();
-						cur_node->data.insert(it_begin_data_node, it_begin_data_left, it_end_data_left); // доєднуєм елементи лівого сусіда до вузла
-
-						it_begin_ptr = cur_node->ptr_sons.begin();
-						auto it_begin_ptr_left = father_ptr->ptr_sons[pos_deep - 1]->ptr_sons.begin();
-						auto it_end_ptr_left = father_ptr->ptr_sons[pos_deep - 1]->ptr_sons.end();
-						cur_node->ptr_sons.insert(it_begin_ptr, it_begin_ptr_left, it_end_ptr_left);		// доєднуєм вказівники лівого сусіда до вузла
-
-						lift_del = true;				// рекурсивний підйом з видалення продовжується
-						side = -1;						// лівий вказівник вузла батька відносно видаляємого ключа далі теж видалити
-						key = swap_element.first;		// ключ що переміщений з батька в вузол потрібно видалити в батьку
-					}
-					else		//зливаєм з правим сусідом (правого доєднуєм)
-					{
-						int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
-						if (side == 1)
-							ptrdel_r_l = 1;
-						else if (side == -1)
-							ptrdel_r_l = 0;
-
-						swap_element = father_ptr->data[pos_deep];			// берем елемент(між вузлом і правим сусідом) з батька що спускається в вузол
-						for (int i = pos; i > cur_node->data.size() - 1; i++)							// зсовуєм елементи вліво заміщуючи видалений 
-						{
-							cur_node->data[i] = cur_node->data[i + 1];
-						}
-						cur_node->data[cur_node->data.size() - 1] = swap_element;	// на останній елемент ставимо упущений елемент з батька
-
-						cur_node->ptr_sons[pos + ptrdel_r_l]->~Node();
-						for (int i = pos + ptrdel_r_l; i > cur_node->ptr_sons.size() - 1; i++)			// зсовуєм вказівники вліво заміщуючи видалений  (side лівий чи правий)
-						{
-							cur_node->ptr_sons[i] = cur_node->ptr_sons[i + 1];
-						}
-						//auto it_end_ptr = cur_node->ptr_sons.begin() + cur_node->ptr_sons.size() - 1;
-						cur_node->ptr_sons.pop_back();				// вирізаєм не потрібний останній вказівник
-
-						auto it_end_data_node = cur_node->data.end();
-						auto it_begin_data_left = father_ptr->ptr_sons[pos_deep + 1]->data.begin();
-						auto it_end_data_left = father_ptr->ptr_sons[pos_deep + 1]->data.end();
-						cur_node->data.insert(it_end_data_node, it_begin_data_left, it_end_data_left);		// доєднуєм елементи правого сусіда до вузла
-
-						auto it_end_ptr = cur_node->ptr_sons.end();
-						auto it_begin_ptr_left = father_ptr->ptr_sons[pos_deep + 1]->ptr_sons.begin();
-						auto it_end_ptr_left = father_ptr->ptr_sons[pos_deep + 1]->ptr_sons.end();
-						cur_node->ptr_sons.insert(it_end_ptr, it_begin_ptr_left, it_end_ptr_left);        // доєднуєм вказівники правого сусіда до вузла
-
-						lift_del = true;				// рекурсивний підйом з видалення продовжується
-						side = 1;						// правий вказівник вузла батька відносно видаляємого ключа далі теж видалити
-						key = swap_element.first;		// ключ що переміщений з батька в вузол потрібно видалити в батьку
-					}
-				}
-
-
-			}
+			lift_deletion(key, is_key, cur_node, father_ptr, swap_element, pos_deep, lift_del, side, descent);
 		}
 	}
 	
@@ -722,6 +515,233 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 	
 }
 
+void B_Tree::lift_deletion(int& key, bool& is_key, Node* cur_node, Node* father_ptr, pair<int, string> swap_element, int pos_deep, bool& lift_del, int& side, bool& descent)
+{
+	int pos;
+	if (father_ptr == nullptr)
+	{
+		search_node_with_key(cur_node, key, pos);	// позиція елемента який потрібно видалити
+
+		if (cur_node->data.size() == 1)
+		{
+			Node* buf = root;
+			if (side == 1)
+			{
+				cur_node->ptr_sons[1]->~Node();
+				root = cur_node->ptr_sons[0];				// правий покажчик потрібно видалити а одже лівий покажчик тепер вказує на корінь
+			}
+			else
+			{
+				cur_node->ptr_sons[0]->~Node();
+				root = cur_node->ptr_sons[1];					// лівий покажчик потрібно видалити а одже правий покажчик тепер вказує на корінь
+			}
+			buf->~Node();
+		}
+		else
+		{
+			int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
+			if (side == 1)
+				ptrdel_r_l = 1;
+			else if (side == -1)
+				ptrdel_r_l = 0;
+
+			for (int i = pos; i > 0; i--)							// зсуваєм елементи вправо заміщаючи той який нада видалити
+			{
+				cur_node->data[i] = cur_node->data[i - 1];
+			}
+			cur_node->ptr_sons[pos + ptrdel_r_l]->~Node();
+			for (int i = pos + ptrdel_r_l; i > 0; i--)				// зсуваєм вказівники вправо заміщаючи той який нада видалити (side)
+			{
+				cur_node->ptr_sons[i] = cur_node->ptr_sons[i - 1];
+			}
+			auto it_begin_data = cur_node->data.begin();
+			auto it_begin_ptr = cur_node->ptr_sons.begin();
+
+			cur_node->data.erase(it_begin_data);			// видаляєм непотрібний перший елемент
+			cur_node->ptr_sons.erase(it_begin_ptr);			// видаляєм не потрібний перший покажчик
+		}
+	}
+	else
+	{
+		search_node_with_key(cur_node, key, pos);	// позиція елемента який потрібно видалити
+
+		if (cur_node->data.size() > min_keys)		// в цьому вузлі не мін елементів
+		{
+			int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
+			if (side == 1)
+				ptrdel_r_l = 1;
+			else if (side == -1)
+				ptrdel_r_l = 0;
+
+			for (int i = pos; i > 0; i--)					// зсуваєм вправо елементи ноди затираючи елемент який нада видалити
+			{
+				cur_node->data[i] = cur_node->data[i - 1];
+			}
+
+			cur_node->ptr_sons[pos + ptrdel_r_l]->~Node();
+			for (int i = pos + ptrdel_r_l; i > 0; i--)				// зсуваєм вправо вказівники ноди затираючи вказівник який нада видалити
+			{
+				cur_node->ptr_sons[i] = cur_node->ptr_sons[i - 1];
+			}
+
+			// видаляєм перший вказівник і значення (зменшуєм розмір)
+			auto it_begin_data = cur_node->data.begin();
+			cur_node->data.erase(it_begin_data);
+			auto it_begin_ptr = cur_node->ptr_sons.begin();
+			cur_node->ptr_sons.erase(it_begin_ptr);
+
+			lift_del = false;	// більше не потрібно нічого видаляти
+			side = 0;
+		}
+		else if (pos_deep > 0 && father_ptr->ptr_sons[pos_deep - 1]->data.size() > min_keys)		// лівий сусід не мін, батько мін
+		{
+			swap_element = father_ptr->data[pos_deep - 1];  // елемент який ми спускаєм з батька на заміну видаляємого з вузла
+
+			int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
+			if (side == 1)
+				ptrdel_r_l = 1;
+			else if (side == -1)
+				ptrdel_r_l = 0;
+
+			for (int i = pos; i > 0; i--)					// зсовуєм елементи вправо заміщаючи видаляємий
+			{
+				cur_node->data[i] = cur_node->data[i - 1];
+			}
+			cur_node->data[0] = swap_element;				// кладем на місце першого елемента вузла (з якого видаляєм) елемент з батька між цим вузлом і лівим сусідом
+
+			cur_node->ptr_sons[pos + ptrdel_r_l]->~Node();
+			for (int i = pos + ptrdel_r_l; i > 0; i--)			// зсовуєм вказівники вправо починаючи з правого чи лівого поінтер (side)
+			{
+				cur_node->ptr_sons[i] = cur_node->ptr_sons[i - 1];
+			}
+			int in_last_p_left = father_ptr->ptr_sons[pos_deep - 1]->ptr_sons.size() - 1;	// індекс останнього поінтера лівого сусіда
+			cur_node->ptr_sons[0] = father_ptr->ptr_sons[pos_deep - 1]->ptr_sons[in_last_p_left];	// на місце першого поінтера в вузлі кладемо останній з лівого сусіда
+
+			int in_last_d_left = father_ptr->ptr_sons[pos_deep - 1]->data.size() - 1;		// індекс останнього елемента лівого сусіда
+
+			father_ptr->data[pos_deep - 1] = father_ptr->ptr_sons[pos_deep - 1]->data[in_last_d_left]; // на місце елемента в батьківському вузлі між вузлом і лівим сусідом кладем останній елемент лівого сусіда
+
+			father_ptr->ptr_sons[pos_deep - 1]->data.pop_back();			// видаляєм останній елемент і поінтер лівого сусіда
+			father_ptr->ptr_sons[pos_deep - 1]->ptr_sons.pop_back();
+
+			lift_del = false;	// більше не потрібно нічого видаляти
+			side = 0;
+		}
+		else if (pos_deep < father_ptr->ptr_sons.size() - 1 && father_ptr->ptr_sons[pos_deep + 1]->data.size() > min_keys)  // правий сусід не мін, батько мін
+		{
+			swap_element = father_ptr->data[pos_deep];  // елемент який ми спускаєм з батька на заміну видаляємого елемента з вузла
+
+			int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
+			if (side == 1)
+				ptrdel_r_l = 1;
+			else if (side == -1)
+				ptrdel_r_l = 0;
+
+			for (int i = pos; i < cur_node->data.size() - 1; i++)					// зсовуєм елементи вліво заміщаючи видаляємий
+			{
+				cur_node->data[i] = cur_node->data[i + 1];
+			}
+			cur_node->data[cur_node->data.size() - 1] = swap_element;				// кладем на місце постаннього елемента вузла (з якого видаляєм) елемент з батька між цим вузлом і правим сусідом
+
+			cur_node->ptr_sons[pos + ptrdel_r_l]->~Node();
+			for (int i = pos + ptrdel_r_l; i < cur_node->ptr_sons.size() - 1; i++)			// зсовуєм вказівники вліво починаючи з правого чи лівого поінтер (side)
+			{
+				cur_node->ptr_sons[i] = cur_node->ptr_sons[i + 1];
+			}
+			cur_node->ptr_sons[cur_node->ptr_sons.size() - 1] = father_ptr->ptr_sons[pos_deep + 1]->ptr_sons[0];	// на місце першого поінтера в вузлі кладемо останній з лівого сусіда
+
+			father_ptr->data[pos_deep] = father_ptr->ptr_sons[pos_deep + 1]->data[0]; // на місце елемента в батьківському вузлі між вузлом і правим сусідом кладем перший елемент правого сусіда
+
+
+			auto it_begin_data_right = father_ptr->ptr_sons[pos_deep + 1]->data.begin();			// видаляєм перший елемент і поінтер правого сусіда
+			auto it_begin_ptr_right = father_ptr->ptr_sons[pos_deep + 1]->ptr_sons.begin();
+			father_ptr->ptr_sons[pos_deep + 1]->data.erase(it_begin_data_right);
+			father_ptr->ptr_sons[pos_deep + 1]->ptr_sons.erase(it_begin_ptr_right);
+
+			lift_del = false;	// більше не потрібно нічого видаляти
+			side = 0;
+		}
+		else        // лівий і правий сусід мін батько мін
+		{
+			if (pos_deep > 0)	//зливаєм з лівим сусідом (лівого доєднуєм)
+			{
+				int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
+				if (side == 1)
+					ptrdel_r_l = 1;
+				else if (side == -1)
+					ptrdel_r_l = 0;
+
+				swap_element = father_ptr->data[pos_deep - 1];			// берем елемент(між вузлом і лівим сусідом) з батька що спускається в вузол
+				for (int i = pos; i > 0; i--)							// зсовуєм елементи вправо заміщуючи видалений 
+				{
+					cur_node->data[i] = cur_node->data[i - 1];
+				}
+				cur_node->data[0] = swap_element;	// на перший елемент ставимо упущений елемент з батька
+
+				cur_node->ptr_sons[pos + ptrdel_r_l]->~Node();
+				for (int i = pos + ptrdel_r_l; i < 0; i--)			// зсовуєм вказівники вправо заміщуючи видалений  (side лівий чи правий)
+				{
+					cur_node->ptr_sons[i] = cur_node->ptr_sons[i - 1];
+				}
+				auto it_begin_ptr = cur_node->ptr_sons.begin();
+				cur_node->ptr_sons.erase(it_begin_ptr);					// вирізаєм не потрібний перший вказівник
+
+				auto it_begin_data_node = cur_node->data.begin();
+				auto it_begin_data_left = father_ptr->ptr_sons[pos_deep - 1]->data.begin();
+				auto it_end_data_left = father_ptr->ptr_sons[pos_deep - 1]->data.end();
+				cur_node->data.insert(it_begin_data_node, it_begin_data_left, it_end_data_left); // доєднуєм елементи лівого сусіда до вузла
+
+				it_begin_ptr = cur_node->ptr_sons.begin();
+				auto it_begin_ptr_left = father_ptr->ptr_sons[pos_deep - 1]->ptr_sons.begin();
+				auto it_end_ptr_left = father_ptr->ptr_sons[pos_deep - 1]->ptr_sons.end();
+				cur_node->ptr_sons.insert(it_begin_ptr, it_begin_ptr_left, it_end_ptr_left);		// доєднуєм вказівники лівого сусіда до вузла
+
+				lift_del = true;				// рекурсивний підйом з видалення продовжується
+				side = -1;						// лівий вказівник вузла батька відносно видаляємого ключа далі теж видалити
+				key = swap_element.first;		// ключ що переміщений з батька в вузол потрібно видалити в батьку
+			}
+			else		//зливаєм з правим сусідом (правого доєднуєм)
+			{
+				int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
+				if (side == 1)
+					ptrdel_r_l = 1;
+				else if (side == -1)
+					ptrdel_r_l = 0;
+
+				swap_element = father_ptr->data[pos_deep];			// берем елемент(між вузлом і правим сусідом) з батька що спускається в вузол
+				for (int i = pos; i > cur_node->data.size() - 1; i++)							// зсовуєм елементи вліво заміщуючи видалений 
+				{
+					cur_node->data[i] = cur_node->data[i + 1];
+				}
+				cur_node->data[cur_node->data.size() - 1] = swap_element;	// на останній елемент ставимо упущений елемент з батька
+
+				cur_node->ptr_sons[pos + ptrdel_r_l]->~Node();
+				for (int i = pos + ptrdel_r_l; i > cur_node->ptr_sons.size() - 1; i++)			// зсовуєм вказівники вліво заміщуючи видалений  (side лівий чи правий)
+				{
+					cur_node->ptr_sons[i] = cur_node->ptr_sons[i + 1];
+				}
+				//auto it_end_ptr = cur_node->ptr_sons.begin() + cur_node->ptr_sons.size() - 1;
+				cur_node->ptr_sons.pop_back();				// вирізаєм не потрібний останній вказівник
+
+				auto it_end_data_node = cur_node->data.end();
+				auto it_begin_data_left = father_ptr->ptr_sons[pos_deep + 1]->data.begin();
+				auto it_end_data_left = father_ptr->ptr_sons[pos_deep + 1]->data.end();
+				cur_node->data.insert(it_end_data_node, it_begin_data_left, it_end_data_left);		// доєднуєм елементи правого сусіда до вузла
+
+				auto it_end_ptr = cur_node->ptr_sons.end();
+				auto it_begin_ptr_left = father_ptr->ptr_sons[pos_deep + 1]->ptr_sons.begin();
+				auto it_end_ptr_left = father_ptr->ptr_sons[pos_deep + 1]->ptr_sons.end();
+				cur_node->ptr_sons.insert(it_end_ptr, it_begin_ptr_left, it_end_ptr_left);        // доєднуєм вказівники правого сусіда до вузла
+
+				lift_del = true;				// рекурсивний підйом з видалення продовжується
+				side = 1;						// правий вказівник вузла батька відносно видаляємого ключа далі теж видалити
+				key = swap_element.first;		// ключ що переміщений з батька в вузол потрібно видалити в батьку
+			}
+		}
+
+
+	}
+}
 
 bool B_Tree::search_node_with_key(Node* cur_node, int key, int& pos)
 {	
@@ -765,38 +785,34 @@ void B_Tree::delete_element(Node*& node_key, int key, int pos)
 	auto it_s = node_key->ptr_sons.begin();
 	node_key->ptr_sons.erase(it_s + ptr_pos);
 }
-Node* B_Tree::search_swap_root_left(Node* cur_node, int pos, pair<int, string>& element)
+Node* B_Tree::search_elem_left_subroot(Node* cur_node, int pos_next_deep, pair<int, string>& element)
 {
 	Node* ptr_leet;
-	if (cur_node->ptr_sons[pos]->data.size() != 0)
+	if (cur_node->ptr_sons[pos_next_deep]->data.size() != 0)
 	{
 		
-		int pos_next =  cur_node->ptr_sons[pos]->ptr_sons.size() - 1;
-		ptr_leet = search_swap_root_left(cur_node->ptr_sons[pos], pos_next, element);
+		int pos_next =  cur_node->ptr_sons[pos_next_deep]->ptr_sons.size() - 1;
+		ptr_leet = search_elem_left_subroot(cur_node->ptr_sons[pos_next_deep], pos_next, element);
 	}
 	else
 	{
-		pair<int, string> buf = element;
 		element = cur_node->data[cur_node->data.size() - 1];
-		cur_node->data[cur_node->data.size() - 1] = buf;
 		return cur_node;
 	}
 	return ptr_leet;
 }
-Node* B_Tree::search_swap_root_right(Node* cur_node, int pos, pair<int, string>& element)
+Node* B_Tree::search_elem_right_subroot(Node* cur_node, int pos_next_deep, pair<int, string>& element)
 {
 	Node* ptr_leet;
-	if (cur_node->ptr_sons[pos]->data.size() != 0)
+	if (cur_node->ptr_sons[pos_next_deep]->data.size() != 0)
 	{
 
 		int pos_next = 0;
-		ptr_leet = search_swap_root_right(cur_node->ptr_sons[pos], pos_next, element);
+		ptr_leet = search_elem_right_subroot(cur_node->ptr_sons[pos_next_deep], pos_next, element);
 	}
 	else
 	{
-		pair<int, string> buf = element;
 		element = cur_node->data[0];
-		cur_node->data[0] = buf;
 		return cur_node;
 	}
 	return ptr_leet;
@@ -814,7 +830,21 @@ void B_Tree::to_left_son_add_right_son(Node* cur_node, int pos)
 	cur_node->ptr_sons[pos]->ptr_sons.insert(it_end_left_son_ptr, it_begin_right_son_ptr, it_end_right_son_ptr);	// доєднуєм до вказівників лівого сина вказівники правого сина
 
 }
-
+Node* B_Tree::search_root_element(Node* cur_node, int key, int& pos)
+{
+	Node* node;
+	bool is_elem = search_node_with_key(cur_node, key, pos);
+	if (!is_elem)
+	{
+		node = search_root_element(cur_node->ptr_sons[pos], key, pos);
+	}
+	else
+	{
+		return cur_node;
+	}
+	
+	return node;
+}
 
 
 void B_Tree::write_BD()
