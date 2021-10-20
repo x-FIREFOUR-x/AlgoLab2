@@ -35,7 +35,7 @@ class B_Tree
 		void write_BD();	   // записуЇ у файл дерево
 		
 												// допом≥жн≥ функц≥њ дл€ (search)
-		string binary_search(Node*& curent_node,const int key);						// пошук елемента або м≥сц€ дл€ подальшого спуску в вузл≥ 
+		string binary_search(Node*& curent_node,const int key);						// рекурсивний виклик б≥нарного пошуку в дерев≥
 
 												// допом≥жн≥ функц≥њ дл€ (push)
 		void search_node(Node*& curent_node, int& key,string& value, bool& need_break_node, Node*& add_ptr);	// рекурсивний виклик пошуку м≥сц€ вставленн€ нового елемента 

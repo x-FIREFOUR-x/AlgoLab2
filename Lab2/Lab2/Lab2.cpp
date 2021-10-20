@@ -1,7 +1,5 @@
 ﻿#include <iostream>
-#include <fstream>
 #include<string>
-#include <vector>
 #include "B_Tree.h"
 
 using namespace std;
@@ -14,7 +12,7 @@ int main()
     while (!is_exit)
     {
         int a;
-        cout << endl << "input (1-search, 2-add, 3-pop, 4-exit)";
+        cout << endl << "input (1-search, 2-add, 3-pop, 4-exit)- ";
         cin >> a;
             switch (a)
             {
