@@ -13,36 +13,64 @@ string B_Tree::search(int key)
 {
 	string value = "";
 	Node* cur_node = root;
-	while (cur_node->data.size() != 0 && value == "" )
-	{
-		value = search_in_node(cur_node, key);
-	}
+	
+	value = binary_search(cur_node, key);
+	
 	return value;
 }
-string B_Tree::search_in_node(Node*& cur_node, const int key)
+string B_Tree::binary_search(Node*& cur_node, const int key)
 {
+	
 	string value = "";
-	for (int i = 0; i < cur_node->data.size(); i++)
+	int start = 0; 
+	int end = cur_node->data.size() - 1;
+	int middle;
+	while (end != start)
 	{
-		if (key == cur_node->data[i].first)
+		middle = ((end - start) / 2) + start;
+		if(key < cur_node->data[middle].first)
 		{
-			value = cur_node->data[i].second;
-			break;
+			end = middle;
 		}
 		else
 		{
-			if (key < cur_node->data[i].first)
+			if (key > cur_node->data[middle].first)
 			{
-				cur_node = cur_node->ptr_sons[i];
-				break;
+				start = middle + 1;
+			}
+			else
+			{
+				start = middle;
+				end = middle;
 			}
 		}
-		if (i == cur_node->data.size() - 1 && key > cur_node->data[i].first)
-		{
-			cur_node = cur_node->ptr_sons[i + 1];
-			break;
-		}
 	}
+	if (key == cur_node->data[start].first)
+	{
+		value = cur_node->data[start].second;
+		return value;
+	}
+	else
+	{
+		if (cur_node->ptr_sons[0]->data.size() != 0)
+		{
+			if (key > cur_node->data[start].first)
+			{
+				value = binary_search(cur_node->ptr_sons[start + 1], key);
+			}
+			else
+			{
+				value = binary_search(cur_node->ptr_sons[start], key);
+			}
+		}
+		else
+		{
+			value == "";
+			return value;
+		}
+		
+	}
+	
 	return value;
 }
 
