@@ -178,14 +178,16 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 	{
 		if (there_node)
 		{
-			if (cur_node->ptr_sons[0]->data.size() == 0)			//чи елемент знаходиться в листі
+					//чи елемент знаходиться в листі
+			if (cur_node->ptr_sons[0]->data.size() == 0)			
 			{
-
-				if (cur_node->data.size() > min_keys || father_ptr == nullptr)  //  видалення коли розмір не мінімальний
+						//  видалення коли розмір не мінімальний
+				if (cur_node->data.size() > min_keys || father_ptr == nullptr)  
 				{
 					delete_element(cur_node, key, pos);
 				}
-				else if (pos_deep > 0 && father_ptr->ptr_sons[pos_deep - 1]->data.size() > min_keys) // видаляєм з листа коли його розмір мін а лівого сусіда не мін
+						// видаляєм з листа коли його розмір мін а лівого сусіда не мін
+				else if (pos_deep > 0 && father_ptr->ptr_sons[pos_deep - 1]->data.size() > min_keys) 
 				{
 					int pos_last_elem = father_ptr->ptr_sons[pos_deep - 1]->data.size() - 1;
 					swap_element = father_ptr->ptr_sons[pos_deep - 1]->data[pos_last_elem];					// запам'ятовуєм останній елемент лівого сусіда		
@@ -202,7 +204,8 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 					father_ptr->ptr_sons[pos_deep]->data[0] = swap_element;			// і кладем в вузол на позицію першого елемента  елемент з батька
 
 				}
-				else if (pos_deep < father_ptr->ptr_sons.size() - 1 && father_ptr->ptr_sons[pos_deep + 1]->data.size() > min_keys)	//@I видаляєм з листа коли його розмір мін а правого сусіда не мін
+						// видаляєм з листа коли його розмір мін а правого сусіда не мін
+				else if (pos_deep < father_ptr->ptr_sons.size() - 1 && father_ptr->ptr_sons[pos_deep + 1]->data.size() > min_keys)	
 				{
 					swap_element = father_ptr->ptr_sons[pos_deep + 1]->data[0];						//запам'ятовуємо перший елемент з правого сусіда
 					delete_element(father_ptr->ptr_sons[pos_deep + 1], swap_element.first, 0);		// видаляєм цей перший елемент з правого сусіда
@@ -219,9 +222,11 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 
 					father_ptr->ptr_sons[pos_deep]->data[pos_last_elem] = swap_element;		// і кладем в вузол на позицію останнього елемента елемент з батька
 				}
-				else		// коли в листі і в правому і лівому сусіді min
+						// коли в листі і в правому і лівому сусіді min
+				else		
 				{
-					if (pos_deep != 0)			// злиття з лівим сусідом
+							// злиття з лівим сусідом
+					if (pos_deep != 0)			
 					{
 						swap_element = father_ptr->data[pos_deep - 1];								// спуск елемента з батька в кінець лівого сусіда
 						father_ptr->ptr_sons[pos_deep - 1]->data.push_back(swap_element);
@@ -244,7 +249,8 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 						lift_del = true;
 
 					}
-					else			// злиття з правим сусідом
+							// злиття з правим сусідом
+					else			
 					{
 						swap_element = father_ptr->data[pos_deep];										// спуск елемента з батьківського в початок правого сусіда вузла
 						vector<pair<int, string>> buf;
@@ -277,26 +283,31 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 
 				}
 			}
-			else   // елемент знаходиться не в листовому вузлі
+					// елемент знаходиться не в листовому вузлі
+			else   
 			{
-				if (father_ptr == nullptr && cur_node->data.size() == 1)			// видалення елемента з кореня коли його розмір мінімальний
+						// видалення елемента з кореня коли його розмір мінімальний
+				if (father_ptr == nullptr && cur_node->data.size() == 1)			
 				{
-					if (cur_node->ptr_sons[0]->data.size() > 0)
+							// якщо елемент в корені не єдиний в дереві
+					if (cur_node->ptr_sons[0]->data.size() > 0)			
 					{
 						pair<int, string> element;
 						//Node* f_ptr = nullptr;
 						Node* ptr_leet = search_elem_left_subroot(cur_node, 0, element);		// находим самий правий вузол лівого піддерева 
 
-						if (ptr_leet->data.size() > min_keys)					// якщо правий лист лівого піддерева більше мін
+								// якщо правий лист лівого піддерева більше мін
+						if (ptr_leet->data.size() > min_keys)					
 						{
 							cur_node->data[0] = element;						// заміняєм видаляємий елемент з кореня на останній елемент з листа
 							
 							ptr_leet->data.pop_back();
 							ptr_leet->ptr_sons.pop_back();
 						}
-						else
+						else   
 						{
 							ptr_leet = search_elem_right_subroot(cur_node, 1, element);		// находим самий лівий вузол правого піддерева
+								// якщо лівий лист правого піддерева більше мін
 							if (ptr_leet->data.size() > min_keys)				// якщо лівий лист правого піддерева більше мін
 							{
 								cur_node->data[0] = element;				// заміняєм видаляємий елемент з кореня на перший елемент з листа
@@ -306,7 +317,8 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 								ptr_leet->data.erase(it_d);
 								ptr_leet->ptr_sons.erase(it_s);
 							}
-							else				// якщо правий лист лівого піддерева мін і лівий лист правого піддерева мін
+								// якщо правий лист лівого піддерева мін і лівий лист правого піддерева мін
+							else				
 							{
 								pair<int, string> root_elem = cur_node->data[pos];
 								int key_leet = element.first;
@@ -323,16 +335,19 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 						}
 
 					}
-					else
+							// якщо елемент єдиний в дереві
+					else					
 					{
 						root->~Node();
 						root = new Node;
 					}
 
 				}
-				else			// не корінь
-				{
-					if (cur_node->ptr_sons[pos]->data.size() > min_keys)    // якщо лівий син має більше мін ключів
+						// не корінь
+				else			
+				{		
+							// якщо лівий син має більше мін ключів
+					if (cur_node->ptr_sons[pos]->data.size() > min_keys)   
 					{
 						int size_left_son = cur_node->ptr_sons[pos]->data.size();
 						swap_element = cur_node->ptr_sons[pos]->data[size_left_son - 1];
@@ -340,16 +355,19 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 
 						pop(swap_element.first, is_key, cur_node->ptr_sons[pos], cur_node, swap_element, pos, lift_del, side, descent);	// викликаєм видалення цього сплившого елемента в лівому сині 
 					}
-					else if (cur_node->ptr_sons[pos + 1]->data.size() > min_keys)  // якщо правий син має більше мін ключів
+							// якщо правий син має більше мін ключів
+					else if (cur_node->ptr_sons[pos + 1]->data.size() > min_keys) 
 					{
 						swap_element = cur_node->ptr_sons[pos + 1]->data[0];
 						cur_node->data[pos] = swap_element;						// на місце елемента що потрібно видалити кладем перший елемент правого сина
 
 						pop(swap_element.first, is_key, cur_node->ptr_sons[pos + 1], cur_node, swap_element, pos + 1, lift_del, side, descent);		// викликаєм видалення цього сплившого елемента в правому сині
 					}
-					else		// якщо правий і лівий син мають мінімальну кількість ключів
+							// якщо правий і лівий син мають мінімальну кількість ключів
+					else		
 					{
-						if (cur_node->data.size() > min_keys || (father_ptr == nullptr && cur_node->data.size() > 1))		// якщо вузол має не мінімальну кількість ключів
+								// якщо вузол має не мінімальну кількість ключів
+						if (cur_node->data.size() > min_keys || (father_ptr == nullptr && cur_node->data.size() > 1))		
 						{
 							swap_element = cur_node->data[pos];
 							cur_node->ptr_sons[pos]->data.push_back(swap_element);		// спускаєм потрібний елемент в кінець лівого сина
@@ -365,7 +383,8 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 							pop(swap_element.first, is_key, cur_node->ptr_sons[pos], cur_node, swap_element, pos, lift_del, side, descent);		// викликаєм функцію видалення цього ключа для лівого сина
 
 						}
-						else    // якщо вузол має мінімальну кількість ключів (100, 50) (сини теж)
+								// якщо вузол має мінімальну кількість ключів (100, 50) (сини теж)
+						else   
 						{
 							
 							if (pos_deep > 0 && father_ptr->ptr_sons[pos_deep-1]->data.size()> min_keys)   // якщо лівий сусід не мін
@@ -389,7 +408,8 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 								father_ptr->ptr_sons[pos_deep - 1]->data.pop_back();				// зменшуєм розмір лівого сусіда (видаляєм останній елемент і вказівник)
 								father_ptr->ptr_sons[pos_deep - 1]->ptr_sons.pop_back();
 							}
-							else if (pos_deep < father_ptr->ptr_sons.size()-1 && father_ptr->ptr_sons[pos_deep + 1]->data.size()> min_keys) // якщо правий сусід не мін
+								// якщо правий сусід не мін
+							else if (pos_deep < father_ptr->ptr_sons.size()-1 && father_ptr->ptr_sons[pos_deep + 1]->data.size()> min_keys) 
 							{
 								to_left_son_add_right_son(cur_node, pos);   // до лівого сина доєднуєм правого
 
@@ -411,10 +431,11 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 								father_ptr->ptr_sons[pos_deep + 1]->ptr_sons.erase(it_right_neightbor_s);
 
 							}	
-							else		// якщо обидва сусіди мін
+								// якщо обидва сусіди мін
+							else		
 							{
-								
-								if (pos_deep > 0)			// зливаєм з лівим сусідом (приєднуєм лівого сусіда)
+									// зливаєм з лівим сусідом (приєднуєм лівого сусіда)
+								if (pos_deep > 0)			
 								{
 									to_left_son_add_right_son(cur_node, pos);		// до лівого сина доєднуєм правого
 									
@@ -444,7 +465,8 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 									side = -1; // видалити потрібно лівий вказівник
 									lift_del = true;
 								}
-								else			// зливаєм з правим сусідом (приєднуєм правого сусіда)
+									// зливаєм з правим сусідом (приєднуєм правого сусіда)
+								else			
 								{
 									to_left_son_add_right_son(cur_node, pos);		 // до лівого сина доєднуєм правого
 
@@ -518,11 +540,13 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 void B_Tree::lift_deletion(int& key, bool& is_key, Node* cur_node, Node* father_ptr, pair<int, string> swap_element, int pos_deep, bool& lift_del, int& side, bool& descent)
 {
 	int pos;
-	if (father_ptr == nullptr)
+		// якщо поточний вузол це корінь
+	if (father_ptr == nullptr)		
 	{
 		search_node_with_key(cur_node, key, pos);	// позиція елемента який потрібно видалити
 
-		if (cur_node->data.size() == 1)
+			// в корені один елемент
+		if (cur_node->data.size() == 1)     
 		{
 			Node* buf = root;
 			if (side == 1)
@@ -537,7 +561,8 @@ void B_Tree::lift_deletion(int& key, bool& is_key, Node* cur_node, Node* father_
 			}
 			buf->~Node();
 		}
-		else
+			// в корені декілька елементів
+		else   
 		{
 			int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
 			if (side == 1)
@@ -561,11 +586,13 @@ void B_Tree::lift_deletion(int& key, bool& is_key, Node* cur_node, Node* father_
 			cur_node->ptr_sons.erase(it_begin_ptr);			// видаляєм не потрібний перший покажчик
 		}
 	}
-	else
+		// якщо поточний вузол це не корінь
+	else      
 	{
 		search_node_with_key(cur_node, key, pos);	// позиція елемента який потрібно видалити
 
-		if (cur_node->data.size() > min_keys)		// в цьому вузлі не мін елементів
+			// в цьому вузлі не мін елементів
+		if (cur_node->data.size() > min_keys)		
 		{
 			int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
 			if (side == 1)
@@ -593,7 +620,8 @@ void B_Tree::lift_deletion(int& key, bool& is_key, Node* cur_node, Node* father_
 			lift_del = false;	// більше не потрібно нічого видаляти
 			side = 0;
 		}
-		else if (pos_deep > 0 && father_ptr->ptr_sons[pos_deep - 1]->data.size() > min_keys)		// лівий сусід не мін, батько мін
+			// лівий сусід не мін, батько мін
+		else if (pos_deep > 0 && father_ptr->ptr_sons[pos_deep - 1]->data.size() > min_keys)		
 		{
 			swap_element = father_ptr->data[pos_deep - 1];  // елемент який ми спускаєм з батька на заміну видаляємого з вузла
 
@@ -627,7 +655,8 @@ void B_Tree::lift_deletion(int& key, bool& is_key, Node* cur_node, Node* father_
 			lift_del = false;	// більше не потрібно нічого видаляти
 			side = 0;
 		}
-		else if (pos_deep < father_ptr->ptr_sons.size() - 1 && father_ptr->ptr_sons[pos_deep + 1]->data.size() > min_keys)  // правий сусід не мін, батько мін
+			// правий сусід не мін, батько мін
+		else if (pos_deep < father_ptr->ptr_sons.size() - 1 && father_ptr->ptr_sons[pos_deep + 1]->data.size() > min_keys)  
 		{
 			swap_element = father_ptr->data[pos_deep];  // елемент який ми спускаєм з батька на заміну видаляємого елемента з вузла
 
@@ -661,7 +690,8 @@ void B_Tree::lift_deletion(int& key, bool& is_key, Node* cur_node, Node* father_
 			lift_del = false;	// більше не потрібно нічого видаляти
 			side = 0;
 		}
-		else        // лівий і правий сусід мін батько мін
+			// лівий і правий сусід мін батько мін
+		else        
 		{
 			if (pos_deep > 0)	//зливаєм з лівим сусідом (лівого доєднуєм)
 			{
@@ -700,7 +730,8 @@ void B_Tree::lift_deletion(int& key, bool& is_key, Node* cur_node, Node* father_
 				side = -1;						// лівий вказівник вузла батька відносно видаляємого ключа далі теж видалити
 				key = swap_element.first;		// ключ що переміщений з батька в вузол потрібно видалити в батьку
 			}
-			else		//зливаєм з правим сусідом (правого доєднуєм)
+				//зливаєм з правим сусідом (правого доєднуєм)
+			else		
 			{
 				int ptrdel_r_l;	// число що визначає чи лівий чи правий поінтер затирається (цей поінтер вказує на елемент що в глибшому рівні рекурсії був злитий в сусіда)
 				if (side == 1)

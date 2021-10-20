@@ -9,7 +9,7 @@ int main()
 {
   
     B_Tree tree("BD.txt",3);
-    tree.console_write();
+    //tree.console_write();
     bool is_exit = false;
     while (!is_exit)
     {
@@ -68,54 +68,6 @@ int main()
                     is_exit = true; break;
             }
     }
-    
-    /*
-    vector<int> k;
-    vector<int> p;
-    for (int i = 0; i < 6; i++)
-    {
-        k.push_back(i);
-        p.push_back(i);
-
-    }
-    for (int i = 0; i < k.size(); i++)
-    {
-        cout << k[i] << endl;
-    }
-    cout << endl;
-    auto it = k.begin();
-    k.erase(it + k.size()/2  , it + k.size());
-    auto it2 = p.begin();
-    p.erase(it2 , it2 + p.size() / 2 );
-
-        for (int i = 0; i < k.size(); i++)
-        {
-            cout << k[i] << " ";
-        }
-        cout << endl;
-        for (int i = 0; i < k.size(); i++)
-        {
-            cout << p[i] <<" ";
-        }
-    */
-
-    /*
-    vector<int> k;
-    vector<int> p;
-    for (int i = 0; i < 6; i++)
-    {
-        k.push_back(i);
-        p.push_back(i*2 + 1);
-
-    }
-    k.insert(k.begin(),p.begin(),p.end());
-    for (int i = 0; i < k.size(); i++)
-    {
-        cout << k[i] << " ";
-    }
-    */
-
-
     
     return 0;
 }
