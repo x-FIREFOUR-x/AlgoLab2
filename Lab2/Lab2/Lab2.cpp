@@ -43,7 +43,16 @@ int main()
                     string value;
                     cout << endl << "input add value: ";
                     cin >> value;
-                    tree.push(key, value);
+                    bool element_add_success = true;
+                    tree.push(key, value, element_add_success);
+                    if (element_add_success)
+                    {
+                        cout << endl << "element with key-" << key << " success added";
+                    }
+                    else
+                    {
+                        cout << endl << "this key already is in tree (not added)";
+                    }
                     break;
                 }
 

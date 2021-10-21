@@ -1,7 +1,7 @@
 50:level11;80:A;
 10:level21;16:F;
 60:level22;70:B;75:node2;
-90:level23;95:node3;
+90:level23;95:node3;120:LOL;
 4:level31;5:C;6:D;
 14:level32;15:E;
 20:node1;23:level33;
@@ -10,8 +10,12 @@
 72:level36;73:P;
 77:level37;78:S;79:R;
 81:level38;82:T;89:X;
-92:level39;93:Y;
-100:level310;110:U;120:LOL;121:W;
+92:level39;93:Y;94:to;
+100:level310;110:U;
+121:W;123:kokokok;150:kkkk;
+
+
+
 
 
 

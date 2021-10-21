@@ -76,72 +76,120 @@ string B_Tree::binary_search(Node*& cur_node, const int key)
 
 
 
-void B_Tree::push(int key, string value)
+void B_Tree::push(int key, string value, bool& element_add_success)
 {
 	bool element_rise = true;
 	Node* add_ptr = new Node;
-	search_node(root, key, value, element_rise, add_ptr);
+	search_node(root, key, value, element_rise, add_ptr, element_add_success);
 	write_BD();
 }
-void B_Tree::search_node(Node*& curent_node, int& key, string& value, bool& element_rise, Node*& add_ptr)
+void B_Tree::search_node(Node*& curent_node, int& key, string& value, bool& element_rise, Node*& add_ptr, bool& element_add_success)
 {
+	bool is_this_element = false;
 	int pos_in;
 	if (curent_node->ptr_sons[0]->data.size() != 0)		// якщо не дійшли до листа заглиблюємося далі
 	{
-		pos_in = search_pos_insert(curent_node, key);	// запамятовуєм в якому місці заглиблюємося
-		search_node(curent_node->ptr_sons[pos_in], key, value, element_rise, add_ptr);
+		pos_in = search_pos_insert(curent_node, key, is_this_element);	// запамятовуєм в якому місці заглиблюємося
+		if (!is_this_element)
+		{
+			search_node(curent_node->ptr_sons[pos_in], key, value, element_rise, add_ptr, element_add_success);
+		}
+		else
+		{
+			element_add_success = false;
+			element_rise = false;
+		}
+		
 	}
 	
 	if (element_rise)
 	{
-		if (curent_node->data.size() < max_keys)			// вставка без розбиття вузла
+		int pos = search_pos_insert(curent_node, key, is_this_element);
+		if (!is_this_element)
 		{
-			int pos = search_pos_insert(curent_node, key);
-			insert_element(curent_node, pos, key, value, add_ptr);
+			if (curent_node->data.size() < max_keys)			// вставка без розбиття вузла
+			{
+
+				insert_element(curent_node, pos, key, value, add_ptr);
+				element_rise = false;
+			}
+			else											// вставка з розбиттям вузла і спливання елемента вгору
+			{
+				Node* n1 = new Node;
+				Node* n2 = new Node;
+				cell_node(curent_node, n1, n2);			// розбиваєм вузол на два n1, n2
+
+
+				if (pos <= curent_node->data.size() / 2 )		// визначаєм куди вставим новий елемент в n1 чи n2
+				{
+					insert_element(n1, pos, key, value, add_ptr);
+				}
+				else
+				{
+					pos = pos - (curent_node->data.size() / 2) - 1;
+					insert_element(n2, pos, key, value, add_ptr);
+				}
+				// елемент що всплив потрібно вставити в вузол що є батьком від поточного    
+				key = curent_node->data[curent_node->data.size() / 2].first;			// ключем елемента що вставляється є ключ елемента що всплив
+				value = curent_node->data[curent_node->data.size() / 2].second;			// значення елемента що вставляється є значення елемента що всплив
+				curent_node = n1;														// вказівник що вказував на поточний тепер вказує на першу половину вузла що був розбитий
+				add_ptr = n2;															// добавлений вказівник підчас добавлення спливаючого елемента вказує на другу половину вузла що був розбитий
+			}
+		}
+		else
+		{
+			element_add_success = false;
 			element_rise = false;
 		}
-		else											// вставка з розбиттям вузла і спливання елемента вгору
-		{
-			Node* n1 = new Node;
-			Node* n2 = new Node;
-			cell_node(curent_node, n1, n2);			// розбиваєм вузол на два n1, n2
-
-			int pos = search_pos_insert(curent_node, key);	// місце для вставлення вузла у ще не розбитому вузлі
-			if (pos <= curent_node->data.size() / 2)		// визначаєм куди вставим новий елемент в n1 чи n2
-			{
-				insert_element(n1, pos, key, value, add_ptr);
-			}
-			else
-			{
-				pos = pos - curent_node->data.size() - 1;
-				insert_element(n2, pos, key, value, add_ptr);
-			}
-							// елемент що всплив потрібно вставити в вузол що є батьком від поточного    
-			key = curent_node->data[curent_node->data.size() / 2].first;			// ключем елемента що вставляється є ключ елемента що всплив
-			value = curent_node->data[curent_node->data.size() / 2].second;			// значення елемента що вставляється є значення елемента що всплив
-			curent_node = n1;														// вказівник що вказував на поточний тепер вказує на першу половину вузла що був розбитий
-			add_ptr = n2;															// добавлений вказівник підчас добавлення спливаючого елемента вказує на другу половину вузла що був розбитий
-		}
+	
 	}
 	
 }
 
-int B_Tree::search_pos_insert(Node* curent_node, int key)
+int B_Tree::search_pos_insert(Node* cur_node, int key, bool& is_this_key)
 {
 	int pos = 0;
-	for (int i = 0; i < curent_node->data.size(); i++)
+	int start = 0;
+	int end = cur_node->data.size() - 1;
+	int middle;
+	while (end != start)
 	{
-		if (key < curent_node->data[i].first)
+		middle = ((end - start) / 2) + start;
+		if (key < cur_node->data[middle].first)
 		{
-			pos = i;
-			break;
+			end = middle;
 		}
-		if (i == curent_node->data.size() - 1 && key > curent_node->data[i].first)
+		else
 		{
-			pos = i + 1;
-			break;
+			if (key > cur_node->data[middle].first)
+			{
+				start = middle + 1;
+			}
+			else
+			{
+				start = middle;
+				end = middle;
+			}
 		}
 	}
+
+	if (key == cur_node->data[start].first)				
+	{
+		is_this_key = true;
+		pos = start;
+	}
+	else
+	{
+		if (key > cur_node->data[start].first)
+		{
+				pos = start + 1;
+		}
+		else
+		{
+				pos = start;
+		}
+	}
+		
 	return pos;
 }
 void B_Tree::insert_element(Node*& curent_node, int pos, int key, string value, Node*& add_ptr)
@@ -169,7 +217,7 @@ void B_Tree::cell_node(Node*& curent_node, Node*& n1, Node*& n2)
 	{
 		n2->data.push_back(pair<int, string>(curent_node->data[i].first, curent_node->data[i].second));
 	}
-	for (int i = curent_node->ptr_sons.size() / 2 + 1; i < curent_node->ptr_sons.size(); i++)
+	for (int i = curent_node->ptr_sons.size() / 2; i < curent_node->ptr_sons.size(); i++)
 	{
 		n2->ptr_sons.push_back(curent_node->ptr_sons[i]);
 	}

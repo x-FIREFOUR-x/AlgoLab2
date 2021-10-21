@@ -20,7 +20,7 @@ class B_Tree
 		B_Tree(string file, int t1);			// конструктор дерева 
 
 		string search(int key);					// функція пошуку ключа в дереві
-		void push(int key, string value);		// функція вставки ключа значення в дерево
+		void push(int key, string value,bool& element_add_success);		// функція вставки ключа значення в дерево
 		bool pop(int key);						// функція видалення елемента по ключу з дерева
 
 		void console_write();
@@ -38,8 +38,8 @@ class B_Tree
 		string binary_search(Node*& curent_node,const int key);						// рекурсивний виклик бінарного пошуку в дереві
 
 												// допоміжні функції для (push)
-		void search_node(Node*& curent_node, int& key,string& value, bool& need_break_node, Node*& add_ptr);	// рекурсивний виклик пошуку місця вставлення нового елемента 
-		int search_pos_insert(Node* curent_node, int key);														// знаходим місце для вставки елемента в вузол
+		void search_node(Node*& curent_node, int& key,string& value, bool& need_break_node, Node*& add_ptr, bool& element_add_success);	// рекурсивний виклик пошуку місця вставлення нового елемента 
+		int search_pos_insert(Node* curent_node, int key, bool& is_this_key);									// знаходим місце для вставки елемента в вузол або місце заглиблення
 		void insert_element(Node*&, int pos, int key, string value, Node*& add_ptr);							// вставка елемента в вузол
 		void cell_node(Node*& curent_node, Node*& n1, Node*& n2);												// розбиття вузла під час добавляння
 
