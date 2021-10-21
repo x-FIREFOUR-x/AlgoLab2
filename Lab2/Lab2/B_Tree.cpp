@@ -21,20 +21,20 @@ int B_Tree::get_size()
 
 
 
-string B_Tree::search(int key)
+string B_Tree::search(int key, Test& test)
 {
 	string value = "";
 	Node* cur_node = root;
-	
+
 	if (root->data.size() != 0)
 	{
-		value = binary_search(cur_node, key);
+		value = binary_search(cur_node, key, test);
 	}
 	
 	
 	return value;
 }
-string B_Tree::binary_search(Node*& cur_node, const int key)
+string B_Tree::binary_search(Node*& cur_node, const int key, Test& test)
 {
 	
 	string value = "";
@@ -44,12 +44,14 @@ string B_Tree::binary_search(Node*& cur_node, const int key)
 	while (end != start)
 	{
 		middle = ((end - start) / 2) + start;
+		test++;
 		if(key < cur_node->data[middle].first)
 		{
 			end = middle;
 		}
 		else
 		{
+			test++;
 			if (key > cur_node->data[middle].first)
 			{
 				start = middle + 1;
@@ -61,6 +63,7 @@ string B_Tree::binary_search(Node*& cur_node, const int key)
 			}
 		}
 	}
+	test++;
 	if (key == cur_node->data[start].first)
 	{
 		value = cur_node->data[start].second;
@@ -70,13 +73,14 @@ string B_Tree::binary_search(Node*& cur_node, const int key)
 	{
 		if (cur_node->ptr_sons[0]->data.size() != 0)
 		{
+			test++;
 			if (key > cur_node->data[start].first)
 			{
-				value = binary_search(cur_node->ptr_sons[start + 1], key);
+				value = binary_search(cur_node->ptr_sons[start + 1], key, test);
 			}
 			else
 			{
-				value = binary_search(cur_node->ptr_sons[start], key);
+				value = binary_search(cur_node->ptr_sons[start], key, test);
 			}
 		}
 		else

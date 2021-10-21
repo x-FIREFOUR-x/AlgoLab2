@@ -144,12 +144,14 @@
     <ClCompile Include="Interface.cpp" />
     <ClCompile Include="Lab2.cpp" />
     <ClCompile Include="Node.cpp" />
+    <ClCompile Include="Test.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="B_Tree.h" />
     <ClInclude Include="Fileworker.h" />
     <ClInclude Include="Interface.h" />
     <ClInclude Include="Node.h" />
+    <ClInclude Include="Test.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

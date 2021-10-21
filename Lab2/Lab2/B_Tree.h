@@ -1,6 +1,7 @@
 #pragma once
 #include "Node.h"
 #include "Fileworker.h"
+#include "Test.h"
 #include<fstream>
 #include <iostream>
 #include <queue>
@@ -23,13 +24,13 @@ class B_Tree
 		Node* get_root();
 		int get_size();
 
-		string search(int key);					// функція пошуку ключа в дереві
+		string search(int key, Test& test);					// функція пошуку ключа в дереві
 		void push(int key, string value,bool& element_add_success);		// функція вставки ключа значення в дерево
 		bool pop(int key);						// функція видалення елемента по ключу з дерева
 
 	private:
 										// допоміжні функції для (search)
-		string binary_search(Node*& curent_node,const int key);						// рекурсивний виклик бінарного пошуку в дереві
+		string binary_search(Node*& curent_node,const int key, Test& test);						// рекурсивний виклик бінарного пошуку в дереві
 
 												// допоміжні функції для (push)
 		void search_node(Node*& curent_node, Node* father_ptr, int& key,string& value, bool& need_break_node, Node*& add_ptr, bool& element_add_success);	// рекурсивний виклик пошуку місця вставлення нового елемента 

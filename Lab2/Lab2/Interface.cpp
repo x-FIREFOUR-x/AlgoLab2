@@ -2,33 +2,38 @@
 
 void Interface::console_interface()
 {
-
-    B_Tree tree("BD.txt");
+    string fname;
+    cout << "Input name file with BD: ";
+    cin >> fname;
+    B_Tree tree(fname);
     //output_tree_in_console(tree);
-    cout << endl << "elements: " << tree.get_size();
+    //cout << endl << "elements: " << tree.get_size();
+
     bool is_exit = false;
     while (!is_exit)
     {
         int a;
-        cout << endl << "input (1-search, 2-add, 3-pop, 4-exit, 5-push random 10k)- ";
+        cout << endl << "Input(1-search, 2-add, 3-delete, 4-exit, 5-add random keys): ";
         cin >> a;
         switch (a)
         {
             case 1:
             {
                 int key;
-                cout << endl << "input search key: ";
+                cout << endl << "Input search key: ";
                 cin >> key;
-                string val = tree.search(key);
+                Test test;
+                string val = tree.search(key, test);
 
                 if (val == "")
                 {
-                    cout << "non key" << endl;
+                    cout << endl << " !key not found";
                 }
                 else
                 {
-                    cout << val << endl;
+                    cout << endl << val ;
                 }
+                cout << endl << "Amount comparison: " << test.get_amount_comparison();
                 
                 break;
             }
@@ -37,20 +42,20 @@ void Interface::console_interface()
             case 2:
             {
                 int key;
-                cout << endl << "input add key: ";
+                cout << endl << "Input add key: ";
                 cin >> key;
                 string value;
-                cout << endl << "input add value: ";
+                cout << endl << "Input add value: ";
                 cin >> value;
                 bool element_add_success = true;
                 tree.push(key, value, element_add_success);
                 if (element_add_success)
                 {
-                    cout << endl << "element with key-" << key << " success added";
+                    cout << endl << " *element with key-" << key << " success added";
                 }
                 else
                 {
-                    cout << endl << "this key already is in tree (not added)";
+                    cout << endl << " ! not added(this key already is in tree)";
                 }
                 break;
             }
@@ -59,13 +64,13 @@ void Interface::console_interface()
             case 3:
             {
                 int key;
-                cout << endl << "input delete key: ";
+                cout << endl << "Input delete key: ";
                 cin >> key;
                 bool succses = tree.pop(key);
                 if (succses)
-                    cout << endl << " succses delete key- " << key;
+                    cout << endl << " *succses delete key " << key;
                 else
-                    cout << endl << "not succses delete key(not have this key)";
+                    cout << endl << " ! not delete(this key isn't in tree)";
             
                 break;
             }
@@ -83,7 +88,7 @@ void Interface::console_interface()
                 cout << endl << "Input amount random element for push: ";
                 cin >> amount;
                 push_more_element(tree, amount);
-                cout << endl << "amount elements: " << tree.get_size();
+                //cout << endl << "amount elements: " << tree.get_size();
                 break;
             }
         }
