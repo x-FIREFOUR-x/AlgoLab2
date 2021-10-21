@@ -1,9 +1,7 @@
 #include "B_Tree.h"
-B_Tree::B_Tree(string file, int t1)
+B_Tree::B_Tree(string file)
 {
-	t = t1;
-	min_keys = t-1;
-	max_keys = t*2 -1;
+	
 	filename = file;
 	read_BD();
 }
@@ -17,6 +15,10 @@ string B_Tree::search(int key)
 	value = binary_search(cur_node, key);
 	
 	return value;
+}
+Node* B_Tree::get_root()
+{
+	return root;
 }
 string B_Tree::binary_search(Node*& cur_node, const int key)
 {
@@ -979,11 +981,14 @@ void B_Tree::write_BD()
 	ofstream fout;
 	fout.open(filename);
 
-	string line = "";
+	string line = to_string(t);
+	fout << line << "\n";
+
+	line = "";
 	queue<Node*> que;
 	que.push(root);
 
-	while (!que.empty())
+	while (!que.empty() && que.front()->data.size() != 0)
 	{
 		Node* cur_node = que.front();
 		que.pop();
@@ -1010,6 +1015,11 @@ void B_Tree::read_BD()
 	//cout << fin.is_open() << endl;
 
 	string line;
+	fin >> line;
+	t = stoi(line);
+	min_keys = t - 1;
+	max_keys = t * 2 - 1;
+
 	fin >> line;
 	queue<Node*> que;
 	Node* node = new Node();
@@ -1058,24 +1068,3 @@ string B_Tree::parsing_value(string& line, int& cursor)
 
 
 
-void B_Tree::console_write()
-{
-	TLR(root);
-}
-void B_Tree::TLR(Node* p)
-{
-	if (p)
-	{
-		for (int i = 0; i < p->data.size(); i++)
-		{
-			cout << p->data[i].first << ":";
-			cout << p->data[i].second << " ";
-		}
-		cout << endl;
-		for (int i = 0; i < p->ptr_sons.size(); i++)
-		{
-			TLR(p->ptr_sons[i]);
-		}
-
-	}
-}

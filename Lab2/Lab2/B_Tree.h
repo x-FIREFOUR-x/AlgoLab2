@@ -17,14 +17,12 @@ class B_Tree
 		int max_keys;			// максимальна кількість ключів в дереві
 
 	public:
-		B_Tree(string file, int t1);			// конструктор дерева 
+		B_Tree(string file);			// конструктор дерева 
+		Node* get_root();
 
 		string search(int key);					// функція пошуку ключа в дереві
 		void push(int key, string value,bool& element_add_success);		// функція вставки ключа значення в дерево
 		bool pop(int key);						// функція видалення елемента по ключу з дерева
-
-		void console_write();
-		void TLR(Node* p);
 
 	private:
 
