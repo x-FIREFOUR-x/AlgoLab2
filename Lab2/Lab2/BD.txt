@@ -1,28 +1,17 @@
-50:level1;80:djdj;
-10:level2;20:node1;
-60:level2;70:d;75:node2;
-90:level2;95:node3;
-4:level3;5:j;6:d;
-14:level3;15:kjk;16:kjk;
-23:level3;27:t;
-51:level3;52:u;
-64:level3;65:qwe;68:ddd;
-72:level3;73:h;
-77:level3;78:n;79:ddd;
-81:level3;82:fff;89:fff;
-92:level3;93:ffff;
-100:level3;110:fff;121:ffff;
-
-
-
-
-
-
-
-
-
-
-
+50:level11;80:AA;
+10:level21;20:node1;
+60:level22;70:BB;75:node2;
+90:level23;95:node3;
+4:level31;5:CC;6:DD;
+14:level32;15:EE;16:FF;
+23:level33;27:GG;
+51:level34;52:KK;
+64:level35;65:LL;68:MM;
+72:level36;73:NN;
+77:level37;78:PP;79:RR;
+81:level38;82:SS;89:TT;
+92:level39;93:QQ;
+100:level310;110:XX;121:YY;
 
 
 
