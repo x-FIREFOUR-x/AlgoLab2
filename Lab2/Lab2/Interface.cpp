@@ -1,5 +1,4 @@
 #include "Interface.h"
-
 void Interface::console_interface()
 {
     string fname;

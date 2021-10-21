@@ -6,9 +6,6 @@
 #include <iostream>
 #include <queue>
 using namespace std;
-
-
-
 class B_Tree
 {
 	private:

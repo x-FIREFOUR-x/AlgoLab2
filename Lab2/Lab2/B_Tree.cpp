@@ -20,7 +20,6 @@ int B_Tree::get_size()
 
 
 
-
 string B_Tree::search(int key, Test& test)
 {
 	string value = "";
