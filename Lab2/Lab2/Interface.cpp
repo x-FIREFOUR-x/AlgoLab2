@@ -4,7 +4,8 @@ void Interface::console_interface()
 {
 
     B_Tree tree("BD.txt");
-    output_tree_in_console(tree);
+    //output_tree_in_console(tree);
+    cout << endl << "elements: " << tree.get_size();
     bool is_exit = false;
     while (!is_exit)
     {
@@ -28,6 +29,7 @@ void Interface::console_interface()
                 {
                     cout << val << endl;
                 }
+                
                 break;
             }
 
@@ -77,7 +79,12 @@ void Interface::console_interface()
 
             case 5:
             {
-
+                int amount;
+                cout << endl << "Input amount random element for push: ";
+                cin >> amount;
+                push_more_element(tree, amount);
+                cout << endl << "amount elements: " << tree.get_size();
+                break;
             }
         }
 
@@ -108,3 +115,32 @@ void Interface::output_tree_in_console(B_Tree tree)
     }
 }
 
+void Interface::push_more_element(B_Tree& tree, int amount)
+{
+    vector<int> keys;
+    for (int i = 0; i <= amount; i++)
+    {
+        keys.push_back(i);
+    }
+
+    random_shuffle(keys.begin(), keys.end());
+
+
+    string value = "";
+    int code_ascii;
+    char symbol;
+    for (int i = 0; i < keys.size(); i++)
+    {
+        value = "";
+        for (int i = 0; i < 3; i++)
+        {
+            code_ascii = rand() % 58 + 65;
+            symbol = code_ascii;
+            value += symbol;
+        }
+
+        bool element_add_success = true;
+        tree.push(keys[i], value, element_add_success);
+    }
+   
+}

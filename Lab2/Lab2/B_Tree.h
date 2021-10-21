@@ -32,7 +32,7 @@ class B_Tree
 		string binary_search(Node*& curent_node,const int key);						// рекурсивний виклик б≥нарного пошуку в дерев≥
 
 												// допом≥жн≥ функц≥њ дл€ (push)
-		void search_node(Node*& curent_node, int& key,string& value, bool& need_break_node, Node*& add_ptr, bool& element_add_success);	// рекурсивний виклик пошуку м≥сц€ вставленн€ нового елемента 
+		void search_node(Node*& curent_node, Node* father_ptr, int& key,string& value, bool& need_break_node, Node*& add_ptr, bool& element_add_success);	// рекурсивний виклик пошуку м≥сц€ вставленн€ нового елемента 
 		int search_pos_insert(Node* curent_node, int key, bool& is_this_key);									// знаходим м≥сце дл€ вставки елемента в вузол або м≥сце заглибленн€
 		void insert_element(Node*&, int pos, int key, string value, Node*& add_ptr);							// вставка елемента в вузол
 		void cell_node(Node*& curent_node, Node*& n1, Node*& n2);												// розбитт€ вузла п≥д час добавл€нн€

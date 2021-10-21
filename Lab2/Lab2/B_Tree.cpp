@@ -101,11 +101,10 @@ void B_Tree::push(int key, string value, bool& element_add_success)
 		root->data.push_back(pair<int, string>(key, value));
 		root->ptr_sons.push_back(new Node);
 		root->ptr_sons.push_back(new Node);
-		size++;
 	}
 	else
 	{
-		search_node(root, key, value, element_rise, add_ptr, element_add_success);
+		search_node(root, nullptr, key, value, element_rise, add_ptr, element_add_success);
 	}
 	
 
@@ -115,7 +114,7 @@ void B_Tree::push(int key, string value, bool& element_add_success)
 	Fileworker f;
 	f.write_BD(filename, root, t);	
 }
-void B_Tree::search_node(Node*& curent_node, int& key, string& value, bool& element_rise, Node*& add_ptr, bool& element_add_success)
+void B_Tree::search_node(Node*& curent_node, Node* father_ptr, int& key, string& value, bool& element_rise, Node*& add_ptr, bool& element_add_success)
 {
 	bool is_this_element = false;
 	int pos_in;
@@ -124,7 +123,7 @@ void B_Tree::search_node(Node*& curent_node, int& key, string& value, bool& elem
 		pos_in = search_pos_insert(curent_node, key, is_this_element);	// запамятовуєм в якому місці заглиблюємося
 		if (!is_this_element)
 		{
-			search_node(curent_node->ptr_sons[pos_in], key, value, element_rise, add_ptr, element_add_success);
+			search_node(curent_node->ptr_sons[pos_in], curent_node, key, value, element_rise, add_ptr, element_add_success);
 		}
 		else
 		{
@@ -166,6 +165,15 @@ void B_Tree::search_node(Node*& curent_node, int& key, string& value, bool& elem
 				value = curent_node->data[curent_node->data.size() / 2].second;			// значення елемента що вставляється є значення елемента що всплив
 				curent_node = n1;														// вказівник що вказував на поточний тепер вказує на першу половину вузла що був розбитий
 				add_ptr = n2;															// добавлений вказівник підчас добавлення спливаючого елемента вказує на другу половину вузла що був розбитий
+
+				if (father_ptr == nullptr)
+				{
+					Node* father = new Node;
+					father->data.push_back(pair<int, string>(key, value));
+					father->ptr_sons.push_back(curent_node);
+					father->ptr_sons.push_back(add_ptr);
+					root = father;
+				}
 			}
 		}
 		else
