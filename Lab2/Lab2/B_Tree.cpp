@@ -852,29 +852,49 @@ void B_Tree::lift_deletion(int& key, bool& is_key, Node* cur_node, Node* father_
 
 bool B_Tree::search_node_with_key(Node* cur_node, int key, int& pos)
 {	
+
 	bool is_search = false;
-	for (int i = 0; i < cur_node->data.size(); i++)
+	int start = 0;
+	int end = cur_node->data.size() - 1;
+	int middle;
+	while (end != start)
 	{
-		if (key == cur_node->data[i].first)
+		middle = ((end - start) / 2) + start;
+		if (key < cur_node->data[middle].first)
 		{
-			pos = i;
-			is_search = true;
-			break;
+			end = middle;
 		}
 		else
 		{
-			if (key < cur_node->data[i].first)
+			if (key > cur_node->data[middle].first)
 			{
-				pos = i;
-				break;
+				start = middle + 1;
+			}
+			else
+			{
+				start = middle;
+				end = middle;
 			}
 		}
-		if (i == cur_node->data.size() - 1 && key > cur_node->data[i].first)
+	}
+
+	if (key == cur_node->data[start].first)
+	{
+		is_search = true;
+		pos = start;
+	}
+	else
+	{
+		if (key > cur_node->data[start].first)
 		{
-			pos = i + 1;
-			break;
+			pos = start + 1;
+		}
+		else
+		{
+			pos = start;
 		}
 	}
+
 	return is_search;
 }
 void B_Tree::delete_element(Node*& node_key, int key, int pos)

@@ -1,21 +1,17 @@
-50:level11;80:A;
-10:level21;16:F;
-60:level22;70:B;75:node2;
-90:level23;95:node3;120:LOL;
-4:level31;5:C;6:D;
-14:level32;15:E;
-20:node1;23:level33;
-51:level34;52:K;
-64:level35;65:L;68:M;
-72:level36;73:P;
-77:level37;78:S;79:R;
-81:level38;82:T;89:X;
-92:level39;93:Y;94:to;
-100:level310;110:U;
-121:W;123:kokokok;150:kkkk;
-
-
-
+50:level1;80:djdj;
+10:level2;20:node1;
+60:level2;70:d;75:node2;
+90:level2;95:node3;
+4:level3;5:j;6:d;
+14:level3;15:kjk;16:kjk;
+23:level3;27:t;
+51:level3;52:u;
+64:level3;65:qwe;68:ddd;
+72:level3;73:h;
+77:level3;78:n;79:ddd;
+81:level3;82:fff;89:fff;
+92:level3;93:ffff;
+100:level3;110:fff;121:ffff;
 
 
 
