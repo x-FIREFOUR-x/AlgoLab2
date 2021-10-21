@@ -31,7 +31,7 @@ void Fileworker::write_BD(string filename, Node* root, int t)
 }
 
 
-Node* Fileworker::read_BD(string filename, int& t, int& min_keys, int& max_keys)
+Node* Fileworker::read_BD(string filename, int& t, int& min_keys, int& max_keys, int& size)
 {
 	ifstream fin;
 	fin.open(filename);
@@ -43,6 +43,7 @@ Node* Fileworker::read_BD(string filename, int& t, int& min_keys, int& max_keys)
 	min_keys = t - 1;
 	max_keys = t * 2 - 1;
 
+	line = "";
 	fin >> line;
 	queue<Node*> que;
 	Node* node = new Node();
@@ -62,6 +63,7 @@ Node* Fileworker::read_BD(string filename, int& t, int& min_keys, int& max_keys)
 			key = parsing_key(line, cursor);
 			value = parsing_value(line, cursor);
 			cur_node->data.push_back(pair<int, string>(key, value));
+			size++;
 		}
 		for (int i = 0; i < cur_node->data.size() + 1; i++)
 		{

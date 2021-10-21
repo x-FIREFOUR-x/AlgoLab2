@@ -16,10 +16,12 @@ class B_Tree
 		int t;					// параметр  B-tree
 		int min_keys;			// мінімальна кількість ключів в дереві
 		int max_keys;			// максимальна кількість ключів в дереві
+		int size;				// кількість ключів в дереві
 
 	public:
 		B_Tree(string file);			// конструктор дерева 
 		Node* get_root();
+		int get_size();
 
 		string search(int key);					// функція пошуку ключа в дереві
 		void push(int key, string value,bool& element_add_success);		// функція вставки ключа значення в дерево

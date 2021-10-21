@@ -3,9 +3,22 @@ B_Tree::B_Tree(string file)
 {
 	
 	filename = file;
+	size = 0;
 	Fileworker f;
-	root = f.read_BD(filename, t, min_keys, max_keys);
+	root = f.read_BD(filename, t, min_keys, max_keys, size);
 }
+
+Node* B_Tree::get_root()
+{
+	return root;
+}
+
+int B_Tree::get_size()
+{
+	return size;
+}
+
+
 
 
 string B_Tree::search(int key)
@@ -13,13 +26,13 @@ string B_Tree::search(int key)
 	string value = "";
 	Node* cur_node = root;
 	
-	value = binary_search(cur_node, key);
+	if (root->data.size() != 0)
+	{
+		value = binary_search(cur_node, key);
+	}
+	
 	
 	return value;
-}
-Node* B_Tree::get_root()
-{
-	return root;
 }
 string B_Tree::binary_search(Node*& cur_node, const int key)
 {
@@ -83,7 +96,21 @@ void B_Tree::push(int key, string value, bool& element_add_success)
 {
 	bool element_rise = true;
 	Node* add_ptr = new Node;
-	search_node(root, key, value, element_rise, add_ptr, element_add_success);
+	if (root->data.size() == 0 )
+	{
+		root->data.push_back(pair<int, string>(key, value));
+		root->ptr_sons.push_back(new Node);
+		root->ptr_sons.push_back(new Node);
+		size++;
+	}
+	else
+	{
+		search_node(root, key, value, element_rise, add_ptr, element_add_success);
+	}
+	
+
+	if (element_add_success)
+		size++;
 
 	Fileworker f;
 	f.write_BD(filename, root, t);	
@@ -237,13 +264,20 @@ bool B_Tree::pop(int key)
 	bool lift_del = false;
 	bool descent = true;
 	bool is_key = true;
-	pop(key, is_key, root, nullptr,  swap_element, -1, lift_del, side, descent);
-	
+	if (root->data.size() != 0)
+	{
+		pop(key, is_key, root, nullptr, swap_element, -1, lift_del, side, descent);
+	}
+	else
+	{
+		is_key = false;
+	}
 	Fileworker f;
 	f.write_BD(filename, root, t);
 
 	if (is_key)
 	{
+		size--;
 		return true;
 	}
 	else
@@ -618,7 +652,6 @@ void B_Tree::pop(int& key, bool& is_key, Node* cur_node, Node* father_ptr,  pair
 	}
 	
 }
-
 void B_Tree::lift_deletion(int& key, bool& is_key, Node* cur_node, Node* father_ptr, pair<int, string> swap_element, int pos_deep, bool& lift_del, int& side, bool& descent)
 {
 	int pos;
@@ -978,7 +1011,3 @@ Node* B_Tree::search_root_element(Node* cur_node, int key, int& pos)
 	
 	return node;
 }
-
-
-
-
