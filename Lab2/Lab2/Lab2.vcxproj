@@ -140,12 +140,14 @@
   </ItemDefinitionGroup>
   <ItemGroup>
     <ClCompile Include="B_Tree.cpp" />
+    <ClCompile Include="Fileworker.cpp" />
     <ClCompile Include="Interface.cpp" />
     <ClCompile Include="Lab2.cpp" />
     <ClCompile Include="Node.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="B_Tree.h" />
+    <ClInclude Include="Fileworker.h" />
     <ClInclude Include="Interface.h" />
     <ClInclude Include="Node.h" />
   </ItemGroup>

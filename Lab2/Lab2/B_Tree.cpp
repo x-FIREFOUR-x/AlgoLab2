@@ -3,7 +3,8 @@ B_Tree::B_Tree(string file)
 {
 	
 	filename = file;
-	read_BD();
+	Fileworker f;
+	root = f.read_BD(filename, t, min_keys, max_keys);
 }
 
 
@@ -83,7 +84,9 @@ void B_Tree::push(int key, string value, bool& element_add_success)
 	bool element_rise = true;
 	Node* add_ptr = new Node;
 	search_node(root, key, value, element_rise, add_ptr, element_add_success);
-	write_BD();
+
+	Fileworker f;
+	f.write_BD(filename, root, t);	
 }
 void B_Tree::search_node(Node*& curent_node, int& key, string& value, bool& element_rise, Node*& add_ptr, bool& element_add_success)
 {
@@ -236,7 +239,8 @@ bool B_Tree::pop(int key)
 	bool is_key = true;
 	pop(key, is_key, root, nullptr,  swap_element, -1, lift_del, side, descent);
 	
-	write_BD();
+	Fileworker f;
+	f.write_BD(filename, root, t);
 
 	if (is_key)
 	{
@@ -975,96 +979,6 @@ Node* B_Tree::search_root_element(Node* cur_node, int key, int& pos)
 	return node;
 }
 
-
-void B_Tree::write_BD()
-{
-	ofstream fout;
-	fout.open(filename);
-
-	string line = to_string(t);
-	fout << line << "\n";
-
-	line = "";
-	queue<Node*> que;
-	que.push(root);
-
-	while (!que.empty() && que.front()->data.size() != 0)
-	{
-		Node* cur_node = que.front();
-		que.pop();
-		for (int i = 0; i < cur_node->data.size(); i++)
-		{
-			line += to_string(cur_node->data[i].first) + ":" + cur_node->data[i].second + ";" ;
-		}
-		line += "\n";
-		for (int i = 0; i < cur_node->ptr_sons.size(); i++)
-		{
-			que.push(cur_node->ptr_sons[i]);
-		}
-		
-		fout << line;
-		line = "";
-	}
-}
-
-
-void B_Tree::read_BD()
-{
-	ifstream fin;
-	fin.open(filename);
-	//cout << fin.is_open() << endl;
-
-	string line;
-	fin >> line;
-	t = stoi(line);
-	min_keys = t - 1;
-	max_keys = t * 2 - 1;
-
-	fin >> line;
-	queue<Node*> que;
-	Node* node = new Node();
-	root = node;
-	que.push(node);
-
-	int key;
-	string value;
-	
-	while (line !="")
-	{
-		Node* cur_node = que.front();
-		que.pop();
-		int cursor = 0;
-		while (cursor < line.size())
-		{
-			key = parsing_key(line, cursor);
-			value = parsing_value(line, cursor);
-			cur_node->data.push_back(pair<int, string>(key, value));
-		}
-		for (int i = 0; i < cur_node->data.size() + 1; i++)
-		{
-			node = new Node();
-			cur_node->ptr_sons.push_back(node); 
-			que.push(cur_node->ptr_sons[i]);
-		}
-		line = "";
-		fin >> line;
-	}
-	
-}
-int B_Tree::parsing_key(string& line, int& cursor)
-{
-	int i = line.find(":", cursor);
-	int key = stoi(line.substr(cursor, i - cursor));
-	cursor = i + 1;
-	return key;
-}
-string B_Tree::parsing_value(string& line, int& cursor)
-{
-	int i = line.find(";", cursor);
-	string value = line.substr(cursor, i - cursor);
-	cursor = i + 1;
-	return value;
-}
 
 
 
