@@ -30,7 +30,7 @@ void Interface::console_interface()
                 }
                 else
                 {
-                    cout << endl << val ;
+                    cout << endl << "value: " << val ;
                 }
                 cout << endl << "Amount comparison: " << test.get_amount_comparison();
                 
